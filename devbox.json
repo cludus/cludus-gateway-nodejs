@@ -1,6 +1,7 @@
 {
   "packages": [
-    "nodejs@latest"
+    "nodejs@latest",
+    "k6@latest"
   ],
   "shell": {
     "init_hook": [
