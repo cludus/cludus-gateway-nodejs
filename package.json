@@ -5,10 +5,10 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development npx nodemon",
     "clean": "rimraf ./build",
     "build": "npm run clean && tsc",
-    "start": "npm run build && node build/index.js"
+    "start": "npm run build && node build/index.js",
+    "start:dev": "NODE_ENV=development npx nodemon"
   },
   "dependencies": {
     "dotenv": "^16.3.1",
