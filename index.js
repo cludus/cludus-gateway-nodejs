@@ -32,7 +32,7 @@ const setupClient = (clientToken, socket) => {
 
   socket.on('message', (data) => {
     console.debug('Client %s message received: %s', clientToken, data);
-    socket.send(`Echo: ${data}`);
+    userHandler.deliverMessage(clientToken, socket, data);
     messagesCount += 1;
     showStats();
   });

@@ -20,6 +20,29 @@ class UserHandler {
     }
   }
 
+  deliverMessage(token, socket, data) {
+    try {
+      const messageMap = JSON.parse(data);
+      const message = messageMap['message'];
+      if (!message) {
+        throw new Error();
+      }
+      const targetToken = messageMap['user'];
+      if (!!this.#users[targetToken]) {
+        this.#users[targetToken].send({
+          user: token,
+          message,
+        });
+        socket.send('Message delivered.');
+      } else {
+        socket.send('Target user could not be found.');
+      }
+    } catch (e) {
+      console.error('deliverMessage', e);
+      socket.send('Invalid message.');
+    }
+  }
+
   activeCount() {
     return this.#activeTokens.length;
   }
