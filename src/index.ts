@@ -33,9 +33,14 @@ const setupClient = (clientToken: string, socket: WebSocket) => {
 
   socket.on('message', (data) => {
     console.debug('Client %s message received: %s', clientToken, data);
-    userHandler.deliverMessage(clientToken, socket, data.toString());
-    messagesCount += 1;
-    showStats();
+    try {
+      userHandler.deliverMessage(clientToken, socket, data.toString());
+      messagesCount += 1;
+      showStats();
+    } catch (e) {
+      console.error('UserHandler.deliverMessage', e);
+      socket.send('Error processing message.');
+    }
   });
 
   socket.on('close', () => {

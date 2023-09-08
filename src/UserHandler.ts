@@ -1,12 +1,11 @@
-import { WebSocket } from 'ws';
-import { StringMap } from './types';
+import { StringMap, UserSocket } from './types';
 
 class UserHandler {
-  #users: StringMap<WebSocket> = {};
+  #users: StringMap<UserSocket> = {};
   #activeTokens: string[] = [];
   #inactiveTokens: string[] = [];
 
-  setSession(token: string, socket: WebSocket): boolean {
+  setSession(token: string, socket: UserSocket): boolean {
     if (!!token) {
       this.#users[token] = socket;
       if (!this.#activeTokens.includes(token)) {
@@ -28,27 +27,22 @@ class UserHandler {
     }
   }
 
-  deliverMessage(token: string, socket: WebSocket, data: string) {
-    try {
-      const userMessage = UserMessage.parse(data);
-      const error = userMessage.validate()
-      if (!!error) {
-        socket.send(error);
-        return;
-      }
-      if (!!this.#users[userMessage.user!]) {
-        const targetMessage = new UserMessage({
-          user: token,
-          message: userMessage.message,
-        });
-        this.#users[userMessage.user!].send(JSON.stringify(targetMessage));
-        socket.send('Message delivered.');
-      } else {
-        socket.send('Target user could not be found.');
-      }
-    } catch (e) {
-      console.error('UserHandler.deliverMessage', e);
-      socket.send('Error processing message.');
+  deliverMessage(token: string, socket: UserSocket, data: string) {
+    const userMessage = UserMessage.parse(data);
+    const error = userMessage.validate()
+    if (!!error) {
+      socket.send(error); // 1
+      return;
+    }
+    if (!!this.#users[userMessage.user!]) {
+      const targetMessage = new UserMessage({
+        user: token,
+        message: userMessage.message,
+      });
+      this.#users[userMessage.user!].send(JSON.stringify(targetMessage));
+      socket.send('Message delivered.'); // 2
+    } else {
+      socket.send('Target user could not be found.'); // 3
     }
   }
 
