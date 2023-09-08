@@ -1,3 +1,4 @@
+import { UserMessage } from './UserMessage';
 import { StringMap, UserSocket } from './types';
 
 class UserHandler {
@@ -31,7 +32,7 @@ class UserHandler {
     const userMessage = UserMessage.parse(data);
     const error = userMessage.validate()
     if (!!error) {
-      socket.send(error); // 1
+      socket.send(JSON.stringify(UserMessage.systemError(error)));
       return;
     }
     if (!!this.#users[userMessage.user!]) {
@@ -53,30 +54,6 @@ class UserHandler {
   inactiveCount(): number {
     return this.#inactiveTokens.length;
   }
-}
-
-class UserMessage {
-  user?: string;
-  message?: string;
-
-  constructor(data: Partial<UserMessage>) {
-    Object.assign(this, data);
-  }
-
-  validate(): string | null {
-    if (!this.user) {
-      return 'Invalid user.';
-    }
-    if (!this.message) {
-      return 'Invalid message.';
-    }
-    return null;
-  }
-
-  static parse = (json: string): UserMessage => {
-    const jsonObject = JSON.parse(json);
-    return new UserMessage(jsonObject);
-  };
 }
 
 export { UserHandler };
