@@ -13,7 +13,7 @@ const server = new WebSocketServer({
   console.log('Cludus Gateway webSocket server started on port %i with path %s', port, path);
 });
 
-const userHandler = new UserHandler();
+const userHandler = new UserHandler({});
 let messagesCount = 0;
 
 server.on('connection', (socket: WebSocket, request: IncomingMessage) => {

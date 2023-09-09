@@ -2,6 +2,13 @@ import { UserMessage } from './UserMessage';
 import { StringMap, UserSocket } from './types';
 
 class UserHandler {
+  messageDeliveredText: string = 'Message delivered.';
+  target404Text: string = 'Target user could not be found.';
+
+  constructor(data: Partial<UserHandler>) {
+    Object.assign(this, data);
+  }
+
   #users: StringMap<UserSocket> = {};
   #activeTokens: string[] = [];
   #inactiveTokens: string[] = [];
@@ -41,9 +48,9 @@ class UserHandler {
         message: userMessage.message,
       });
       this.#users[userMessage.user!].send(JSON.stringify(targetMessage));
-      socket.send('Message delivered.'); // 2
+      socket.send(JSON.stringify(UserMessage.systemMessage(this.messageDeliveredText)));
     } else {
-      socket.send('Target user could not be found.'); // 3
+      socket.send(JSON.stringify(UserMessage.systemError(this.target404Text)));
     }
   }
 
