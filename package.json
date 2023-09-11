@@ -1,0 +1,14 @@
+{
+  "name": "cludus-gateway-nodejs",
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "start:dev": "bun --watch src/index.ts"
+  }
+}
