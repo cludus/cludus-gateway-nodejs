@@ -9,6 +9,7 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "start:dev": "bun --watch src/index.ts"
+    "start:dev": "bun --watch src/index.ts",
+    "test:watch": "bun test --watch"
   }
 }
