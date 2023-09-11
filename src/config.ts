@@ -1,10 +1,10 @@
 export interface AppConfig {
-  wsPort: number;
+  serverPort: number;
   wsPath: string;
 }
 
 const appConfig: AppConfig = {
-  wsPort: Number.parseInt(process.env.WS_PORT || '') || 8080,
+  serverPort: Number.parseInt(process.env.PORT || '') || 8080,
   wsPath: process.env.WS_PATH || '/websocket',
 };
 
