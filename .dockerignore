@@ -1,5 +1,6 @@
 Dockerfile
 .dockerignore
 .editorconfig
+.env
 .env_sample
 test/

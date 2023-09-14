@@ -1,0 +1,7 @@
+services:
+  gateway-nodejs:
+    build: .
+    environment:
+      WS_PATH: "/websocket"
+    ports:
+      - "8080:8080"

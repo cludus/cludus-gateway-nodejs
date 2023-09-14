@@ -61,5 +61,5 @@ Bun.serve<User>({
   },
 });
 
-console.log('Cludus Gateway server started on port %i with webSocket path: %s',
+console.log('Cludus Gateway server started on port %i with webSocket path: %s (Press CTRL+C to quit)',
   appConfig.serverPort, appConfig.wsPath);
