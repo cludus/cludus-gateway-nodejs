@@ -20,6 +20,12 @@ To run:
 bun start:dev
 ```
 
+To test:
+
+```bash
+bun test
+```
+
 ## Deployment
 
 The docker image can be deployed using:
