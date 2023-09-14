@@ -57,7 +57,6 @@ Bun.serve<User>({
     close(ws) {
       userHandler.delete(ws.data);
     },
-    perMessageDeflate: true,
   },
 });
 
