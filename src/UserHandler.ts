@@ -27,6 +27,10 @@ export class UserHandler<T> implements UserFetcher {
     this.#sockets.set(user.token, socket);
   }
 
+  count() {
+    return this.#users.size;
+  }
+
   delete(user: User) {
     this.#users.delete(user.token);
     this.#sockets.delete(user.token);

@@ -27,6 +27,7 @@ Bun.serve<User>({
   websocket: {
     open(ws) {
       userHandler.set(ws.data, ws);
+      console.log('----> User %s connected. Active connections: %i', ws.data.token, userHandler.count());
     },
     message(ws, message) {
       try {
@@ -56,6 +57,7 @@ Bun.serve<User>({
     },
     close(ws) {
       userHandler.delete(ws.data);
+      console.log('<- User %s disconnected. Active connections: %i', ws.data.token, userHandler.count());
     },
   },
 });

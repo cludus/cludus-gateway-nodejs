@@ -26,4 +26,15 @@ describe('UserHandler tests', () => {
     userHandler.delete(user);
     expect(userHandler.get(token)).toBeUndefined();
   });
+
+  test('should count sessions', () => {
+    const userHandler = new UserHandler<String>();
+    const count = 10;
+    for (let i = 0; i < count; i++) {
+      const token = `user-${i}`;
+      const user: User = { token };
+      userHandler.set(user, token);
+    }
+    expect(userHandler.count()).toEqual(count);
+  });
 });
