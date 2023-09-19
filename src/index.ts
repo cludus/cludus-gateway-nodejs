@@ -2,8 +2,20 @@ import appConfig from './config';
 import { User, UserSocket } from './types';
 import { UserHandler } from './UserHandler';
 import { UserMessage } from './UserMessage';
+import { collectDefaultMetrics, Gauge, Registry } from 'prom-client';
 
 const userHandler = new UserHandler<UserSocket>();
+const promRegistry = new Registry();
+collectDefaultMetrics({
+  register: promRegistry,
+  prefix: 'bun_',
+  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
+});
+const promGauge = new Gauge({
+  name: 'gateway_bun_connections_gauge',
+  help: 'Gateway connections gauge',
+  labelNames: ['connections'],
+});
 
 Bun.serve<User>({
   port: appConfig.serverPort,
@@ -21,6 +33,13 @@ Bun.serve<User>({
       } catch (e) {
         return new Response(e as string | undefined, { status: 401 });
       }
+    } else if (url.pathname === appConfig.prometheusPath) {
+      const metrics = await promRegistry.metrics();
+      return new Response(metrics, {
+        headers: {
+          'Content-Type': promRegistry.contentType,
+        },
+      });
     }
     return new Response('Cludus Gateway!');
   },
@@ -28,6 +47,7 @@ Bun.serve<User>({
     open(ws) {
       userHandler.set(ws.data, ws);
       console.log('----> User %s connected. Active connections: %i', ws.data.token, userHandler.count());
+      promGauge.labels('connections').set(userHandler.count());
     },
     message(ws, message) {
       try {
@@ -58,6 +78,7 @@ Bun.serve<User>({
     close(ws) {
       userHandler.delete(ws.data);
       console.log('<- User %s disconnected. Active connections: %i', ws.data.token, userHandler.count());
+      promGauge.labels('connections').set(userHandler.count());
     },
   },
 });

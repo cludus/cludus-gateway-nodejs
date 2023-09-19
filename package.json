@@ -12,5 +12,8 @@
     "start:dev": "bun --watch src/index.ts",
     "start:build": "bun build/index.js",
     "test:watch": "bun test --watch"
+  },
+  "dependencies": {
+    "prom-client": "^14.2.0"
   }
 }
