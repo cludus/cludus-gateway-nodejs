@@ -1,6 +1,6 @@
 # Cludus Gateway (NodeJS)
 
-Cludus Gateway implementation in node
+Cludus Gateway implementation in node.
 
 ## Stack
 
@@ -39,9 +39,11 @@ For docker compose use the following script:
 ```bash
 services:
   gateway-nodejs:
-    image: ghcr.io/cludus/gateway-nodejs
+    image: ghcr.io/cludus/gateway-nodejs:latest
     environment:
+      NODE_ENV: "production" # or "live". Use any other value for development purposes (debug level logs).
       WS_PATH: "/websocket"
+      PROMETHEUS_PATH: "/actuator/prometheus"
     ports:
       - "8080:8080"
 ```

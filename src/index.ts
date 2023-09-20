@@ -2,19 +2,24 @@ import appConfig from './config';
 import { User, UserSocket } from './types';
 import { UserHandler } from './UserHandler';
 import { UserMessage } from './UserMessage';
-import { collectDefaultMetrics, Gauge, Registry } from 'prom-client';
+import { Counter, Histogram, Gauge, Registry } from 'prom-client';
 
 const userHandler = new UserHandler<UserSocket>();
 const promRegistry = new Registry();
-collectDefaultMetrics({
-  register: promRegistry,
-  prefix: 'bun_',
-  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
+const promConnsCounter = new Gauge({
+  name: 'cludus_gateway_connections_count',
+  help: 'Cludus Gateway Connections count Gauge',
+  registers: [promRegistry],
 });
-const promGauge = new Gauge({
-  name: 'gateway_bun_connections_gauge',
-  help: 'Gateway connections gauge',
-  labelNames: ['connections'],
+const promMsgsCounter = new Counter({
+  name: 'cludus_gateway_messages_count',
+  help: 'Cludus Gateway Messages Counter',
+  registers: [promRegistry],
+});
+const promMsgsTimer = new Histogram({
+  name: 'cludus_gateway_messages_latency',
+  help: 'Cludus Gateway Messages Latency Histogram',
+  registers: [promRegistry],
 });
 
 Bun.serve<User>({
@@ -46,10 +51,12 @@ Bun.serve<User>({
   websocket: {
     open(ws) {
       userHandler.set(ws.data, ws);
-      console.log('----> User %s connected. Active connections: %i', ws.data.token, userHandler.count());
-      promGauge.labels('connections').set(userHandler.count());
+      console.debug('====> User %s connected. Active connections: %i', ws.data.token, userHandler.count());
+      promConnsCounter.set(userHandler.count());
     },
     message(ws, message) {
+      promMsgsCounter.inc();
+      const promTimer = promMsgsTimer.startTimer();
       try {
         const userMessage = UserMessage.parse(message.toString());
         const error = userMessage.validate();
@@ -73,15 +80,20 @@ Bun.serve<User>({
       } catch (e) {
         // message could not be parsed
         ws.send(UserMessage.systemError(e as string).toString());
+        console.error(e);
+      } finally {
+        promTimer();
       }
     },
     close(ws) {
       userHandler.delete(ws.data);
-      console.log('<- User %s disconnected. Active connections: %i', ws.data.token, userHandler.count());
-      promGauge.labels('connections').set(userHandler.count());
+      console.debug('<- User %s disconnected. Active connections: %i', ws.data.token, userHandler.count());
+      promConnsCounter.set(userHandler.count());
     },
   },
 });
 
-console.log('Cludus Gateway server started on port %i with webSocket path: %s (Press CTRL+C to quit)',
-  appConfig.serverPort, appConfig.wsPath);
+const devTip = appConfig.devMode ? '(Press CTRL+C to quit)' : ''
+console.log('Cludus Gateway server started on port %i %s', appConfig.serverPort, devTip);
+console.log(' - WebSocket endpoint : %s', appConfig.wsPath);
+console.log(' - Prometheus endpoint: %s', appConfig.prometheusPath);
