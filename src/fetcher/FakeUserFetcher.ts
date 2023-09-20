@@ -1,4 +1,4 @@
-import { User, UserFetcher } from "../types";
+import { User, UserFetcher } from '../model/types';
 
 export class FakeUserFetcher implements UserFetcher {
   readonly userNotFoundMessage: string;

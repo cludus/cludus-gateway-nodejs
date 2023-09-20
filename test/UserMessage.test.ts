@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { UserMessage } from '../src/UserMessage';
+import { UserMessage } from '../src/model/UserMessage';
 
 describe('UserMessage tests', () => {
   test('should validate if user or message is empty', () => {

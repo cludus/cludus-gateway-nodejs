@@ -1,5 +1,5 @@
-import { FakeUserFetcher } from './fetcher/FakeUserFetcher';
-import { User, UserFetcher } from './types';
+import { FakeUserFetcher } from '../fetcher/FakeUserFetcher';
+import { User, UserFetcher } from '../model/types';
 
 export class UserHandler<T> implements UserFetcher {
   readonly userNotFoundMessage: string;

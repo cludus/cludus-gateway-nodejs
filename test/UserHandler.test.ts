@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { UserHandler } from '../src/UserHandler';
-import { User } from '../src/types';
+import { UserHandler } from '../src/handler/UserHandler';
+import { User } from '../src/model/types';
 
 describe('UserHandler tests', () => {
   test('should use fetcher to fetch user', () => {
