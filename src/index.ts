@@ -39,6 +39,7 @@ Bun.serve<User>({
         return new Response(e as string | undefined, { status: 401 });
       }
     } else if (url.pathname === appConfig.prometheusPath) {
+      console.debug('... Prometheus metrics requested');
       const metrics = await promRegistry.metrics();
       return new Response(metrics, {
         headers: {
@@ -55,6 +56,7 @@ Bun.serve<User>({
       promConnsCounter.set(userHandler.count());
     },
     message(ws, message) {
+      console.debug('Message received from %s: %s', ws.data.token, message.toString());
       promMsgsCounter.inc();
       const promTimer = promMsgsTimer.startTimer();
       try {

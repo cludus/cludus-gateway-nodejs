@@ -7,6 +7,8 @@ services:
       PROMETHEUS_PATH: "/actuator/prometheus"
     ports:
       - "8080:8080"
+    profiles:
+      - test
 
   prometheus:
     image: prom/prometheus:latest
@@ -16,3 +18,16 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
       - gateway-1
+    profiles:
+      - test
+
+  prometheus-dev:
+    image: prom/prometheus:latest
+    extra_hosts:
+      - "gateway-dev:127.0.0.1"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus-dev.yml:/etc/prometheus/prometheus.yml
+    profiles:
+      - dev
