@@ -1,0 +1,33 @@
+name: build-docker-image
+run-name: ${{ github.actor }} is building out the Docker image 🚀
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  install-test:
+    name: install-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun test
+  build-docker-image:
+    needs: install-test
+    name: build-docker-image
+    runs-on: ubuntu-latest
+    env:
+      IMG_NAME: ghcr.io/cludus/gateway-nodejs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          docker build -t ghcr.io/cludus/gateway-nodejs:latest .
+          docker push ghcr.io/cludus/gateway-nodejs:latest
