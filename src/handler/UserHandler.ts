@@ -1,3 +1,4 @@
+import appConfig from '../config';
 import { FakeUserFetcher } from '../fetcher/FakeUserFetcher';
 import { User, UserFetcher, UserSocket } from '../model/types';
 
@@ -8,6 +9,7 @@ export class UserHandler implements UserFetcher {
   #users = new Map<string, User>();
   #sockets = new Map<string, UserSocket>();
   #heartbeats = new Map<string, Date>();
+  #worker: Worker | undefined;
 
   constructor(userFetcher?: UserFetcher)
   constructor(userFetcher?: UserFetcher, userNotFoundMessage?: string) {
@@ -15,7 +17,17 @@ export class UserHandler implements UserFetcher {
     this.#userFetcher = userFetcher || new FakeUserFetcher(this.userNotFoundMessage);
   }
 
-  // check heartbeat every x time to disconnect non-active users
+  init() {
+    if (!this.#worker) {
+      const workerURL = new URL('../worker.ts', import.meta.url).href;
+      this.#worker = new Worker(workerURL);
+
+      // this.#worker.postMessage(false);
+      this.#worker.onmessage = () => {
+        this._checkHeartbeats();
+      };
+    }
+  }
 
   fetch(token: string): Promise<User> {
     return this.#userFetcher.fetch(token);
@@ -39,11 +51,22 @@ export class UserHandler implements UserFetcher {
     this.#heartbeats.set(user.token, new Date());
   }
 
+  _checkHeartbeats() {
+    this.#heartbeats.forEach((v, k) => {
+      const hearbeatDiff = (new Date().getTime() - v.getTime()) / 1000;
+      console.debug('- Checking connection activity of %s with last heartbeat %i seconds ago (max allowed %i)',
+        k, hearbeatDiff, appConfig.maxUserHeartbeatDelayInSeconds);
+      if (hearbeatDiff > appConfig.maxUserHeartbeatDelayInSeconds) {
+        console.debug('  Closing connection of %s due to inactivity!', k);
+        const socket = this.#sockets.get(k);
+        if (!!socket) {
+          socket.close();
+        }
+      }
+    });
+  }
+
   delete(user: User) {
-    // const socket = this.#sockets.get(user.token);
-    // if (!!socket) {
-    //   socket.close();
-    // }
     this.#users.delete(user.token);
     this.#sockets.delete(user.token);
     this.#heartbeats.delete(user.token);
