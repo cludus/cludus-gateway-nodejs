@@ -39,16 +39,33 @@ describe('UserHandler tests', () => {
     }
     expect(userHandler.count()).toEqual(count);
   });
+
+  test('should check connections heartbeats', async () => {
+    const userHandler = new UserHandler();
+    const user: User = { token: 'token' };
+    const closeFn = mock(() => { });
+    userHandler.set(user, new TestSocket('-', closeFn));
+    userHandler.checkHeartbeats(1);
+    await Bun.sleep(1001);
+    userHandler.checkHeartbeats(1);
+    expect(closeFn).toHaveBeenCalledTimes(1);
+  });
 });
 
 class TestSocket implements UserSocket {
   readonly remoteAddress: string;
+  #closeFn?: Function;
 
-  constructor(remoteAddress: string) {
+  constructor(remoteAddress: string, closeFn?: Function) {
     this.remoteAddress = remoteAddress;
+    this.#closeFn = closeFn;
   }
 
-  send(_: string): void { }
+  send(_: string) { }
 
-  close(): void { }
+  close() {
+    if (this.#closeFn != null) {
+      this.#closeFn.apply(this);
+    }
+  }
 }

@@ -5,7 +5,7 @@ declare var self: Worker;
 let enabled = true;
 
 self.onmessage = (event: MessageEvent<boolean>) => {
-  enabled = !!event.data;
+  enabled = event.data;
   if (!enabled) {
     self.terminate();
   }

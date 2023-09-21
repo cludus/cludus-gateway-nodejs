@@ -9,24 +9,11 @@ export class UserHandler implements UserFetcher {
   #users = new Map<string, User>();
   #sockets = new Map<string, UserSocket>();
   #heartbeats = new Map<string, Date>();
-  #worker: Worker | undefined;
 
   constructor(userFetcher?: UserFetcher)
   constructor(userFetcher?: UserFetcher, userNotFoundMessage?: string) {
     this.userNotFoundMessage = userNotFoundMessage || 'User not found!';
     this.#userFetcher = userFetcher || new FakeUserFetcher(this.userNotFoundMessage);
-  }
-
-  init() {
-    if (!this.#worker) {
-      const workerURL = new URL('../worker.ts', import.meta.url).href;
-      this.#worker = new Worker(workerURL);
-
-      // this.#worker.postMessage(false);
-      this.#worker.onmessage = () => {
-        this._checkHeartbeats();
-      };
-    }
   }
 
   fetch(token: string): Promise<User> {
@@ -51,12 +38,12 @@ export class UserHandler implements UserFetcher {
     this.#heartbeats.set(user.token, new Date());
   }
 
-  _checkHeartbeats() {
+  checkHeartbeats(maxUserHeartbeatDelayInSeconds: number) {
     this.#heartbeats.forEach((v, k) => {
       const hearbeatDiff = (new Date().getTime() - v.getTime()) / 1000;
       console.debug('- Checking connection activity of %s with last heartbeat %i seconds ago (max allowed %i)',
-        k, hearbeatDiff, appConfig.maxUserHeartbeatDelayInSeconds);
-      if (hearbeatDiff > appConfig.maxUserHeartbeatDelayInSeconds) {
+        k, hearbeatDiff, maxUserHeartbeatDelayInSeconds);
+      if (hearbeatDiff > maxUserHeartbeatDelayInSeconds) {
         console.debug('  Closing connection of %s due to inactivity!', k);
         const socket = this.#sockets.get(k);
         if (!!socket) {

@@ -4,7 +4,7 @@ import { UserMessageType } from '../../src/model/types';
 
 describe('UserMessage tests', () => {
   test('should validate if action or recipient or content is empty', () => {
-    const msg = new UserMessage({});
+    const msg = new UserMessage();
     expect(msg.validate()).toBeDefined();
 
     msg.action = UserMessageType.SEND;
@@ -33,23 +33,4 @@ describe('UserMessage tests', () => {
     expect(msg.recipient).toEqual(rawMsg['recipient']);
     expect(msg.content).toEqual(rawMsg['content']);
   });
-
-  // test('systemMessage should indicate system user', () => {
-  //   const msg = UserMessage.systemMessage('Test');
-  //   expect(msg.user).toEqual('system');
-  // });
-
-  // test('systemError should indicate isError and system user', () => {
-  //   const msg = UserMessage.systemError('Test');
-  //   expect(msg.user).toEqual('system');
-  //   expect(msg.isError).toBeTruthy();
-  // });
-
-  // test('toString should return json string', () => {
-  //   const msg = UserMessage.systemError('Test');
-  //   const msgJson = msg.toString();
-  //   expect(msgJson).toBeString();
-  //   expect(msgJson.indexOf(`"${msg.user}"`)).toBePositive();
-  //   expect(msgJson.indexOf(`"${msg.message}"`)).toBePositive();
-  // });
 });

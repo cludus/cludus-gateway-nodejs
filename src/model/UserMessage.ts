@@ -5,10 +5,6 @@ export class UserMessage {
   recipient?: string;
   content?: string;
 
-  constructor(data: Partial<UserMessage>) {
-    Object.assign(this, data);
-  }
-
   validate(): string | null {
     if (!this.action) {
       return 'Invalid action.';
@@ -24,6 +20,8 @@ export class UserMessage {
 
   static parse = (json: string): UserMessage => {
     const jsonObject = JSON.parse(json);
-    return new UserMessage(jsonObject);
+    const userMessage = new UserMessage();
+    Object.assign(userMessage, jsonObject);
+    return userMessage;
   };
 }
