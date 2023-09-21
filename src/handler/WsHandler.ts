@@ -1,14 +1,15 @@
 import { ServerWebSocket } from 'bun';
 import { UserHandler } from './UserHandler';
 import { MetricsHandler } from './MetricsHandler';
-import { User, UserSocket } from '../model/types';
+import { User, UserMessageType } from '../model/types';
 import { UserMessage } from '../model/UserMessage';
+import { ServerMessage } from '../model/ServerMessage';
 
 export class WsHandler {
-  #userHandler: UserHandler<UserSocket>;
+  #userHandler: UserHandler;
   #metricsHandler: MetricsHandler;
 
-  constructor(userHandler: UserHandler<UserSocket>, metricsHandler: MetricsHandler) {
+  constructor(userHandler: UserHandler, metricsHandler: MetricsHandler) {
     this.#userHandler = userHandler;
     this.#metricsHandler = metricsHandler;
   }
@@ -26,29 +27,43 @@ export class WsHandler {
     try {
       const userMessage = UserMessage.parse(message.toString());
       const error = userMessage.validate();
-      if (!error) {
-        // valid message received
-        const socket = this.#userHandler.get(userMessage.user!);
-        if (!!socket) {
-          // target user found
-          socket!.send(new UserMessage({
-            user: ws.data.token,
-            message: userMessage.message,
-          }).toString());
-        } else {
-          // target user not found
-          ws.send(UserMessage.systemError('User not found!').toString());
-        }
-      } else {
+      if (!!error) {
         // invalid message received
-        ws.send(UserMessage.systemError(error).toString());
+        ws.send(ServerMessage.error(error).toString());
+      } else {
+        // valid message received
+        this._handleMessage(ws, userMessage);
       }
     } catch (e) {
       // message could not be parsed
-      ws.send(UserMessage.systemError(e as string).toString());
+      ws.send(ServerMessage.error(e as string).toString());
       console.error(e);
     } finally {
       timer();
+    }
+  }
+
+  _handleMessage(ws: ServerWebSocket<User>, message: UserMessage) {
+    this.#userHandler.heartbeat(ws.data);
+    if (message.action == UserMessageType.HEARTBEAT) {
+      // hearbeat
+      ws.send(ServerMessage.ack().toString());
+    } else {
+      // recipient message
+      this._handleRecipientMessage(ws, message);
+    }
+  }
+
+  _handleRecipientMessage(ws: ServerWebSocket<User>, message: UserMessage) {
+    const socket = this.#userHandler.get(message.recipient!);
+    if (!!socket) {
+      // target user found
+      socket!.send(ServerMessage.message(ws.data.token, message.content!).toString());
+      // acknowledge message
+      ws.send(ServerMessage.ack().toString());
+    } else {
+      // target user not found
+      ws.send(ServerMessage.error('User not found!').toString());
     }
   }
 

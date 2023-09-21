@@ -3,11 +3,11 @@ import { Server } from 'bun';
 import { UserHandler } from './UserHandler';
 import { MetricsHandler } from './MetricsHandler';
 
-export class HttpHandler<T> {
-  #userHandler: UserHandler<T>;
+export class HttpHandler {
+  #userHandler: UserHandler;
   #metricsHandler: MetricsHandler;
 
-  constructor(userHandler: UserHandler<T>, metricsHandler: MetricsHandler) {
+  constructor(userHandler: UserHandler, metricsHandler: MetricsHandler) {
     this.#userHandler = userHandler;
     this.#metricsHandler = metricsHandler;
   }
@@ -16,7 +16,7 @@ export class HttpHandler<T> {
     const url = new URL(request.url);
     if (url.pathname === appConfig.wsPath) {
       // websocket request
-      const userToken = request.headers.get('authentication');
+      const userToken = request.headers.get('authorization');
       try {
         const user = await this.#userHandler.fetch(userToken || '');
         const success = server.upgrade(request, { data: user });

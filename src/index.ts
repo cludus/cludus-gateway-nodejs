@@ -1,13 +1,13 @@
 import appConfig from './config';
-import { User, UserSocket } from './model/types';
+import { User } from './model/types';
 import { UserHandler } from './handler/UserHandler';
 import { MetricsHandler } from './handler/MetricsHandler';
 import { HttpHandler } from './handler/HttpHandler';
 import { WsHandler } from './handler/WsHandler';
 
-const userHandler = new UserHandler<UserSocket>();
+const userHandler = new UserHandler();
 const metricsHandler = new MetricsHandler();
-const httpHandler = new HttpHandler<UserSocket>(userHandler, metricsHandler);
+const httpHandler = new HttpHandler(userHandler, metricsHandler);
 const wsHandler = new WsHandler(userHandler, metricsHandler);
 
 Bun.serve<User>({

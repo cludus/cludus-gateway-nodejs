@@ -1,12 +1,13 @@
 import { FakeUserFetcher } from '../fetcher/FakeUserFetcher';
-import { User, UserFetcher } from '../model/types';
+import { User, UserFetcher, UserSocket } from '../model/types';
 
-export class UserHandler<T> implements UserFetcher {
+export class UserHandler implements UserFetcher {
   readonly userNotFoundMessage: string;
 
   #userFetcher: UserFetcher;
   #users = new Map<string, User>();
-  #sockets = new Map<string, T>();
+  #sockets = new Map<string, UserSocket>();
+  #heartbeats = new Map<string, Date>();
 
   constructor(userFetcher?: UserFetcher)
   constructor(userFetcher?: UserFetcher, userNotFoundMessage?: string) {
@@ -14,25 +15,37 @@ export class UserHandler<T> implements UserFetcher {
     this.#userFetcher = userFetcher || new FakeUserFetcher(this.userNotFoundMessage);
   }
 
+  // check heartbeat every x time to disconnect non-active users
+
   fetch(token: string): Promise<User> {
     return this.#userFetcher.fetch(token);
   }
 
-  get(token: string): T | undefined {
+  get(token: string): UserSocket | undefined {
     return this.#sockets.get(token);
   }
 
-  set(user: User, socket: T) {
+  set(user: User, socket: UserSocket) {
     this.#users.set(user.token, user);
     this.#sockets.set(user.token, socket);
+    this.heartbeat(user);
   }
 
   count() {
     return this.#users.size;
   }
 
+  heartbeat(user: User) {
+    this.#heartbeats.set(user.token, new Date());
+  }
+
   delete(user: User) {
+    // const socket = this.#sockets.get(user.token);
+    // if (!!socket) {
+    //   socket.close();
+    // }
     this.#users.delete(user.token);
     this.#sockets.delete(user.token);
+    this.#heartbeats.delete(user.token);
   }
 }

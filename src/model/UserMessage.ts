@@ -1,18 +1,23 @@
-class UserMessage {
-  user?: string;
-  message?: string;
-  isError?: boolean;
+import { UserMessageType } from "./types";
+
+export class UserMessage {
+  action?: UserMessageType;
+  recipient?: string;
+  content?: string;
 
   constructor(data: Partial<UserMessage>) {
     Object.assign(this, data);
   }
 
   validate(): string | null {
-    if (!this.user) {
-      return 'Invalid user.';
+    if (!this.action) {
+      return 'Invalid action.';
     }
-    if (!this.message) {
-      return 'Invalid message.';
+    if (!this.recipient) {
+      return 'Invalid recipient.';
+    }
+    if (!this.content) {
+      return 'Invalid content.';
     }
     return null;
   }
@@ -21,22 +26,4 @@ class UserMessage {
     const jsonObject = JSON.parse(json);
     return new UserMessage(jsonObject);
   };
-
-  static systemMessage = (message: string): UserMessage => {
-    return new UserMessage({ user: 'system', message });
-  };
-
-  static systemError = (message: string): UserMessage => {
-    return new UserMessage({ user: 'system', message, isError: true });
-  };
-
-  toString(): string {
-    return JSON.stringify({
-      user: this.user,
-      message: this.message,
-      isError: this.isError,
-    });
-  }
 }
-
-export { UserMessage };

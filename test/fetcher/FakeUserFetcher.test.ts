@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { FakeUserFetcher } from '../src/fetcher/FakeUserFetcher';
+import { FakeUserFetcher } from '../../src/fetcher/FakeUserFetcher';
 
 describe('FakeUserFetcher tests', () => {
   test('should return use if token is not empty', async () => {
