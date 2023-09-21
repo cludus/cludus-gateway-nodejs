@@ -1,4 +1,4 @@
-import { describe, expect, mock, test } from 'bun:test';
+import { describe, expect, mock, setSystemTime, test } from 'bun:test';
 import { UserHandler } from '../../src/handler/UserHandler';
 import { User, UserSocket } from '../../src/model/types';
 
@@ -44,11 +44,13 @@ describe('UserHandler tests', () => {
     const userHandler = new UserHandler();
     const user: User = { token: 'token' };
     const closeFn = mock(() => { });
+    setSystemTime(new Date("1997-12-25T00:00:00.000Z"));
     userHandler.set(user, new TestSocket('-', closeFn));
-    userHandler.checkHeartbeats(1);
-    await Bun.sleep(1001);
-    userHandler.checkHeartbeats(1);
+    userHandler.checkHeartbeats(10);
+    setSystemTime(new Date("1997-12-25T00:00:11.000Z"));
+    userHandler.checkHeartbeats(10);
     expect(closeFn).toHaveBeenCalledTimes(1);
+    setSystemTime();
   });
 });
 
