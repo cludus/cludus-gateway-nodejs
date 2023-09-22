@@ -19,8 +19,6 @@ jobs:
     needs: install-test
     name: build-docker-image
     runs-on: ubuntu-latest
-    env:
-      IMG_NAME: ghcr.io/cludus/gateway-nodejs
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v1

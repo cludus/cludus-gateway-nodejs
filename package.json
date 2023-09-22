@@ -11,6 +11,7 @@
   "scripts": {
     "start:dev": "bun --watch src/index.ts",
     "start:build": "bun build/index.js",
+    "test:coverage": "bun test --coverage",
     "test:watch": "bun test --watch"
   },
   "dependencies": {
