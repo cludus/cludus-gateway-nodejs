@@ -26,8 +26,9 @@ export class HttpHandler {
       } catch (e) {
         return new Response(e as string | undefined, { status: 401 });
       }
-    } else if (url.pathname === appConfig.prometheusPath) {
-      console.debug('... Prometheus metrics requested');
+    } else if (url.pathname === appConfig.metricsPath) {
+      // metrics request
+      console.debug('... Metrics requested');
       const metrics = await this.#metricsHandler.metrics();
       return new Response(metrics, {
         headers: {

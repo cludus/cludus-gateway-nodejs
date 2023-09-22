@@ -1,7 +1,8 @@
 import appConfig from '../config';
 import { Counter, Gauge, Histogram, Registry } from 'prom-client';
+import { MetricsHandler } from './types';
 
-export class MetricsHandler {
+export class PrometheusMetricsHandler implements MetricsHandler {
   #promRegistry: Registry;
   #promConnsCounter: Gauge;
   #promMsgsCounter: Counter;

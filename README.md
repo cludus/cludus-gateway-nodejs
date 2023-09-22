@@ -43,7 +43,7 @@ services:
     environment:
       NODE_ENV: "production" # or "live". Use any other value for development purposes (debug level logs).
       WS_PATH: "/websocket"
-      PROMETHEUS_PATH: "/actuator/prometheus"
+      METRICS_PATH: "/actuator/prometheus"
     ports:
       - "8080:8080"
 ```
