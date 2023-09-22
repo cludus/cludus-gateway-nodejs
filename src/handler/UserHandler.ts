@@ -41,7 +41,7 @@ export class UserHandler implements UserFetcher {
   checkHeartbeats(maxUserHeartbeatDelayInSeconds: number) {
     this.#heartbeats.forEach((v, k) => {
       const hearbeatDiff = (new Date().getTime() - v.getTime()) / 1000;
-      console.debug('- Checking connection activity of %s with last heartbeat %i seconds ago (max allowed %i)',
+      console.debug('- Checking connection activity of %s with last heartbeat %d seconds ago (max allowed %d)',
         k, hearbeatDiff, maxUserHeartbeatDelayInSeconds);
       if (hearbeatDiff > maxUserHeartbeatDelayInSeconds) {
         console.debug('  Closing connection of %s due to inactivity!', k);

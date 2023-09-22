@@ -30,9 +30,9 @@ Bun.serve<User>({
 });
 
 const devTip = appConfig.devMode ? '(Press CTRL+C to quit)' : ''
-console.log('Cludus Gateway server started on port %i %s', appConfig.serverPort, devTip);
-console.log(' - WebSocket endpoint : %s', appConfig.wsPath);
-console.log(' - Metrics endpoint: %s', appConfig.metricsPath);
+console.info('Cludus Gateway server started on port %d %s', appConfig.serverPort, devTip);
+console.info(' - WebSocket endpoint : %s', appConfig.wsPath);
+console.info(' - Metrics endpoint: %s', appConfig.metricsPath);
 
 if (appConfig.workerDelayInSeconds > 0) {
   const workerURL = new URL('./worker.ts', import.meta.url).href;

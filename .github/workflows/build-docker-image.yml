@@ -2,8 +2,6 @@ name: build-docker-image
 run-name: ${{ github.actor }} is building out the Docker image 🚀
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 jobs:

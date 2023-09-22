@@ -1,6 +1,6 @@
 import { ServerWebSocket } from 'bun';
 import { UserHandler } from './UserHandler';
-import { MetricsHandler } from './MetricsHandler';
+import { MetricsHandler } from './types';
 import { User, UserMessageType } from '../model/types';
 import { UserMessage } from '../model/UserMessage';
 import { ServerMessage } from '../model/ServerMessage';
@@ -16,7 +16,7 @@ export class WsHandler {
 
   open(ws: ServerWebSocket<User>) {
     this.#userHandler.set(ws.data, ws);
-    console.debug('====> User %s connected. Active connections: %i', ws.data.token, this.#userHandler.count());
+    console.debug('====> User %s connected. Active connections: %d', ws.data.token, this.#userHandler.count());
     this.#metricsHandler.setConnectionsCount(this.#userHandler.count());
   }
 
@@ -69,7 +69,7 @@ export class WsHandler {
 
   close(ws: ServerWebSocket<User>) {
     this.#userHandler.delete(ws.data);
-    console.debug('<- User %s disconnected. Active connections: %i', ws.data.token, this.#userHandler.count());
+    console.debug('<- User %s disconnected. Active connections: %d', ws.data.token, this.#userHandler.count());
     this.#metricsHandler.setConnectionsCount(this.#userHandler.count());
   }
 }

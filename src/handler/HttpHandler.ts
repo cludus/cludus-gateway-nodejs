@@ -1,7 +1,7 @@
 import appConfig from '../config';
 import { Server } from 'bun';
 import { UserHandler } from './UserHandler';
-import { MetricsHandler } from './MetricsHandler';
+import { MetricsHandler } from './types';
 
 export class HttpHandler {
   #userHandler: UserHandler;
