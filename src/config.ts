@@ -3,6 +3,7 @@ import {
   format as winston_format,
   transports as winston_transports,
 } from 'winston';
+import LokiTransport from 'winston-loki';
 
 export interface AppConfig {
   serverPort: number;
@@ -31,24 +32,43 @@ const appConfig: AppConfig = {
   maxUserHeartbeatDelayInSeconds: Number.parseInt(process.env.MAX_USER_HEARTBEAT_DELAY_IN_SECONDS || '') || 600,
 };
 
-const logger = createLogger({
-  level: isLive ? 'info' : 'debug',
-  format: winston_format.combine(
-    winston_format.colorize(),
-    winston_format.splat(),
-    winston_format.timestamp(),
-    winston_format.printf(({ timestamp, level, message }) => {
-      return `[${timestamp}] ${level}: ${message}`;
-    })
-  ),
-  transports: [
+const configureLogging = () => {
+  const loggerTransports: (winston_transports.ConsoleTransportInstance | LokiTransport)[] = [
     new winston_transports.Console(),
-  ],
-});
-['debug', 'info', 'warn', 'error'].forEach((level) => {
-  (console as any)[level] = (...args: any[]) => {
-    (logger as any)[level].apply(logger, args);
-  };
-});
+  ];
+  const lokiHost = process.env.LOGS_COLLECTOR_HOST || '';
+  const hasLoki = URL.canParse(lokiHost);
+  if (hasLoki) {
+    loggerTransports.push(new LokiTransport({
+      host: lokiHost,
+      json: true,
+      labels: { app: 'cludus-gateway-nodejs' },
+      onConnectionError: (err) => {
+        console.error('LokiTransport error:', err);
+      },
+    }));
+  }
+  const logger = createLogger({
+    level: isLive ? 'info' : 'debug',
+    format: winston_format.combine(
+      winston_format.colorize(),
+      winston_format.splat(),
+      winston_format.timestamp(),
+      winston_format.printf(({ timestamp, level, message }) => {
+        return `[${timestamp}] ${level}: ${message}`;
+      })
+    ),
+    transports: loggerTransports,
+  });
+  ['debug', 'info', 'warn', 'error'].forEach((level) => {
+    (console as any)[level] = (...args: any[]) => {
+      (logger as any)[level].apply(logger, args);
+    };
+  });
+  if (hasLoki) {
+    console.debug('Collecting logs to %s', lokiHost);
+  }
+};
+configureLogging();
 
 export default appConfig;

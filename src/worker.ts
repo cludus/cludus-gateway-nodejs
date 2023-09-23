@@ -1,17 +1,10 @@
-import appConfig from './config';
-
 declare var self: Worker;
 
-let enabled = true;
-
-self.onmessage = (event: MessageEvent<boolean>) => {
-  enabled = event.data;
-  if (!enabled) {
-    self.terminate();
+for (let key of Object.keys(process.env)) {
+  const value = Number.parseInt(process.env[key]!) || 0;
+  if (value > 0) {
+    setInterval(() => {
+      self.postMessage(key);
+    }, value * 1000);
   }
-};
-
-while (enabled) {
-  await Bun.sleep(appConfig.workerDelayInSeconds * 1000);
-  self.postMessage(enabled);
 }

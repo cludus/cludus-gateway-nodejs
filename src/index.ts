@@ -35,10 +35,18 @@ console.info(' - WebSocket endpoint : %s', appConfig.wsPath);
 console.info(' - Metrics endpoint: %s', appConfig.metricsPath);
 
 if (appConfig.workerDelayInSeconds > 0) {
-  const workerURL = new URL('./worker.ts', import.meta.url).href;
-  const worker = new Worker(workerURL);
+  const checkHeartBeatsKey = 'check-heartbeats';
 
-  worker.onmessage = () => {
-    userHandler.checkHeartbeats(appConfig.maxUserHeartbeatDelayInSeconds);
+  const workerURL = new URL('./worker.ts', import.meta.url).href;
+  const worker = new Worker(workerURL, {
+    env: {
+      [checkHeartBeatsKey]: String(appConfig.workerDelayInSeconds),
+    }
+  });
+
+  worker.onmessage = (event: MessageEvent<string>) => {
+    if (event.data == checkHeartBeatsKey) {
+      userHandler.checkHeartbeats(appConfig.maxUserHeartbeatDelayInSeconds);
+    }
   };
 }
