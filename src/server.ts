@@ -8,16 +8,15 @@ import { User } from './model/types';
 
 export class AppServer {
   #userHandler: UserHandler;
-  #metricsHandler: MetricsHandler;
 
   constructor(userHandler: UserHandler) {
     this.#userHandler = userHandler;
-    this.#metricsHandler = new PrometheusMetricsHandler();
   }
 
   start() {
-    const httpHandler = new HttpHandler(this.#userHandler, this.#metricsHandler);
-    const wsHandler = new WsHandler(this.#userHandler, this.#metricsHandler);
+    const metricsHandler: MetricsHandler = new PrometheusMetricsHandler();
+    const httpHandler = new HttpHandler(this.#userHandler, metricsHandler);
+    const wsHandler = new WsHandler(this.#userHandler, metricsHandler);
     Bun.serve<User>({
       port: appConfig.serverPort,
       async fetch(req, server) {
