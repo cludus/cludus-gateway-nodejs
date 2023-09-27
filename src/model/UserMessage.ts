@@ -1,4 +1,4 @@
-import { UserMessageType } from "./types";
+import { UserMessageType } from './types';
 
 export class UserMessage {
   action?: UserMessageType;

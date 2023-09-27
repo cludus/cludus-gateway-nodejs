@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { ServerMessage } from "../../src/model/ServerMessage.ts";
-import { ServerMessageType } from "../../src/model/types.ts";
+import { ServerMessage } from '../../src/model/ServerMessage.ts';
+import { ServerMessageType } from '../../src/model/types.ts';
 
 describe('ServerMessage tests', () => {
   test('acknowledge should indicate action', () => {

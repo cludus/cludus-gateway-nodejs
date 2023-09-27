@@ -1,4 +1,4 @@
-import { ServerMessageType } from "./types";
+import { ServerMessageType } from './types';
 
 export class ServerMessage {
   action: ServerMessageType;
