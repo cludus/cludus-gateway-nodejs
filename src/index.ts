@@ -5,6 +5,9 @@ import { MetricsHandler } from './handler/types';
 import { HttpHandler } from './handler/HttpHandler';
 import { WsHandler } from './handler/WsHandler';
 import { PrometheusMetricsHandler } from './handler/MetricsHandler';
+import { configureLogging } from './logger';
+
+configureLogging();
 
 const userHandler = new UserHandler();
 const metricsHandler: MetricsHandler = new PrometheusMetricsHandler();
@@ -29,7 +32,7 @@ Bun.serve<User>({
   },
 });
 
-const devTip = appConfig.devMode ? '(Press CTRL+C to quit)' : ''
+const devTip = appConfig.devMode ? '(Press CTRL+C to quit)' : '';
 console.info('Cludus Gateway server started on port %d %s', appConfig.serverPort, devTip);
 console.info(' - WebSocket endpoint : %s', appConfig.wsPath);
 console.info(' - Metrics endpoint: %s', appConfig.metricsPath);

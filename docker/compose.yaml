@@ -70,3 +70,5 @@ services:
           editable: false
         EOF
         /run.sh
+    profiles:
+      - dev
