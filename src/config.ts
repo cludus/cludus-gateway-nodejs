@@ -3,7 +3,6 @@ export interface AppConfig {
   wsPath: string;
   metricsPath: string;
   liveMode: boolean;
-  devMode: boolean;
   metricsConnectionsCountKey: string;
   metricsMessagesCountKey: string;
   metricsMessagesTimerKey: string;
@@ -17,7 +16,6 @@ const appConfig: AppConfig = {
   wsPath: process.env.WS_PATH || '/websocket',
   metricsPath: process.env.METRICS_PATH || '/actuator/prometheus',
   liveMode: isLive,
-  devMode: !isLive,
   metricsConnectionsCountKey: process.env.METRICS_CONNECTIONS_COUNT_KEY || 'cludus_gateway_connections_count',
   metricsMessagesCountKey: process.env.METRICS_MESSAGES_COUNT_KEY || 'cludus_gateway_messages_count',
   metricsMessagesTimerKey: process.env.METRICS_MESSAGES_TIMER_KEY || 'cludus_gateway_messages_latency',

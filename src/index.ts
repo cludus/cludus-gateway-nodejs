@@ -32,7 +32,7 @@ Bun.serve<User>({
   },
 });
 
-const devTip = appConfig.devMode ? '(Press CTRL+C to quit)' : '';
+const devTip = !appConfig.liveMode ? '(Press CTRL+C to quit)' : '';
 console.info('Cludus Gateway server started on port %d %s', appConfig.serverPort, devTip);
 console.info(' - WebSocket endpoint : %s', appConfig.wsPath);
 console.info(' - Metrics endpoint: %s', appConfig.metricsPath);
