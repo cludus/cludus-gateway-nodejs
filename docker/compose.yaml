@@ -1,8 +1,7 @@
 version: "3"
 
 networks:
-  dev:
-  test:
+  cludus:
 
 services:
   gateway-1:
@@ -14,12 +13,14 @@ services:
       METRICS_CONNECTIONS_COUNT_KEY: "cludus_gateway_connections_count"
       METRICS_MESSAGES_COUNT_KEY: "cludus_gateway_messages_count"
       METRICS_MESSAGES_TIMER_KEY: "cludus_gateway_messages_latency"
+      LOGS_COLLECTOR: "loki"
+      LOGS_COLLECTOR_HOST: "http://loki:3100"
     ports:
       - "8080:8080"
     profiles:
       - test
     networks:
-      - test
+      - cludus
 
   prometheus:
     image: prom/prometheus:latest
@@ -32,7 +33,7 @@ services:
     profiles:
       - test
     networks:
-      - test
+      - cludus
 
   prometheus-dev:
     image: prom/prometheus:latest
@@ -45,24 +46,20 @@ services:
     profiles:
       - dev
     networks:
-      - dev
+      - cludus
 
-  loki-dev:
+  loki:
     image: grafana/loki:main
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-    profiles:
-      - dev
     networks:
-      - dev
+      - cludus
 
-  grafana-dev:
+  grafana:
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
-    links:
-      - "loki-dev:loki"
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
@@ -86,7 +83,5 @@ services:
           editable: false
         EOF
         /run.sh
-    profiles:
-      - dev
     networks:
-      - dev
+      - cludus

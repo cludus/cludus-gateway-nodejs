@@ -1,6 +1,13 @@
-Dockerfile
 .dockerignore
 .editorconfig
 .env
 .env_sample
+.gitignore
+Dockerfile
+README.md
+.github/
+build/
+docker/
+node_modules/
+script/
 test/
