@@ -1,3 +1,9 @@
+version: "3"
+
+networks:
+  dev:
+  test:
+
 services:
   gateway-1:
     image: ghcr.io/cludus/gateway-nodejs:latest
@@ -12,6 +18,8 @@ services:
       - "8080:8080"
     profiles:
       - test
+    networks:
+      - test
 
   prometheus:
     image: prom/prometheus:latest
@@ -22,6 +30,8 @@ services:
     depends_on:
       - gateway-1
     profiles:
+      - test
+    networks:
       - test
 
   prometheus-dev:
@@ -34,6 +44,8 @@ services:
       - ./prometheus-dev.yml:/etc/prometheus/prometheus.yml
     profiles:
       - dev
+    networks:
+      - dev
 
   loki-dev:
     image: grafana/loki:main
@@ -42,11 +54,15 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     profiles:
       - dev
+    networks:
+      - dev
 
   grafana-dev:
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
+    links:
+      - "loki-dev:loki"
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
@@ -71,4 +87,6 @@ services:
         EOF
         /run.sh
     profiles:
+      - dev
+    networks:
       - dev

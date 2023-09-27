@@ -2,26 +2,22 @@ import appConfig from './config';
 import {
   createLogger,
   format as winston_format,
-  transports as winston_transports,
+  transports,
 } from 'winston';
 import LokiTransport from 'winston-loki';
 import { formatDate } from './util/date';
+import { format } from 'node:sys';
+
+declare type LoggerTransports = transports.ConsoleTransportInstance | LokiTransport;
 
 export const configureLogging = () => {
-  const loggerTransports: (winston_transports.ConsoleTransportInstance | LokiTransport)[] = [
-    new winston_transports.Console(),
+  const loggerTransports: LoggerTransports[] = [
+    new transports.Console(),
   ];
-  const lokiHost = process.env.LOGS_COLLECTOR_HOST || '';
-  const hasLoki = URL.canParse(lokiHost);
-  if (hasLoki) {
-    loggerTransports.push(new LokiTransport({
-      host: lokiHost,
-      json: true,
-      labels: { app: 'cludus-gateway-nodejs' },
-      onConnectionError: (err) => {
-        console.error('LokiTransport error:', err);
-      },
-    }));
+  let collectorMessage = '';
+  const collector = process.env.LOGS_COLLECTOR || '';
+  if (!!collector) {
+    collectorMessage = configCollector(collector, loggerTransports);
   }
   const logger = createLogger({
     level: appConfig.liveMode ? 'info' : 'debug',
@@ -43,7 +39,25 @@ export const configureLogging = () => {
       }
     };
   });
-  if (hasLoki) {
-    console.debug('Collecting logs to %s with loki', lokiHost);
+  if (!!collectorMessage) {
+    console.debug(collectorMessage);
   }
 };
+
+const configCollector = (key: string, loggerTransports: LoggerTransports[]): string => {
+  if (key === 'loki') {
+    const lokiHost = process.env.LOGS_COLLECTOR_HOST || '';
+    if (URL.canParse(lokiHost)) {
+      loggerTransports.push(new LokiTransport({
+        host: lokiHost,
+        json: true,
+        labels: { app: 'cludus-gateway', name: 'cludus-gateway-nodejs' },
+        onConnectionError: (err) => {
+          console.error('LokiTransport error:', err);
+        },
+      }));
+      return format('Collecting logs to %s with loki', lokiHost);
+    }
+  }
+  return '';
+}
