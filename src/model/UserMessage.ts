@@ -1,11 +1,15 @@
 import { UserMessageType } from './types';
 
 export class UserMessage {
+  id?: string;
   action?: UserMessageType;
   recipient?: string;
   content?: string;
 
   validate(): string | null {
+    if (!this.id) {
+      return 'Invalid id.';
+    }
     if (!this.action) {
       return 'Invalid action.';
     }

@@ -1,27 +1,29 @@
 import { ServerMessageType } from './types';
 
 export class ServerMessage {
-  action: ServerMessageType;
+  readonly action: ServerMessageType;
+  readonly messageId: string;
   sender?: string;
   content?: string;
   errorMsg?: string;
 
-  constructor(action: ServerMessageType) {
+  constructor(action: ServerMessageType, messageId: string) {
     this.action = action;
+    this.messageId = messageId;
   }
 
-  static ack = (): ServerMessage => {
-    return new ServerMessage(ServerMessageType.ACK);
+  static ack = (messageId: string): ServerMessage => {
+    return new ServerMessage(ServerMessageType.ACK, messageId);
   };
 
-  static error = (errorMsg: string): ServerMessage => {
-    const serverMessage = new ServerMessage(ServerMessageType.ERROR);
+  static error = (messageId: string, errorMsg: string): ServerMessage => {
+    const serverMessage = new ServerMessage(ServerMessageType.ERROR, messageId);
     serverMessage.errorMsg = errorMsg;
     return serverMessage;
   };
 
-  static message = (sender: string, content: string): ServerMessage => {
-    const serverMessage = new ServerMessage(ServerMessageType.MESSAGE);
+  static message = (messageId: string, sender: string, content: string): ServerMessage => {
+    const serverMessage = new ServerMessage(ServerMessageType.MESSAGE, messageId);
     serverMessage.sender = sender;
     serverMessage.content = content;
     return serverMessage;
@@ -29,6 +31,7 @@ export class ServerMessage {
 
   toString(): string {
     return JSON.stringify({
+      messageId: this.messageId,
       action: this.action.toString(),
       sender: this.sender,
       content: this.content,

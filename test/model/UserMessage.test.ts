@@ -3,7 +3,7 @@ import { UserMessage } from '../../src/model/UserMessage';
 import { UserMessageType } from '../../src/model/types';
 
 describe('UserMessage tests', () => {
-  test('should validate if action or recipient or content is empty', () => {
+  test('should validate if any of id, action, recipient or content is empty', () => {
     const msg = new UserMessage();
     expect(msg.validate()).toBeDefined();
 
@@ -14,6 +14,9 @@ describe('UserMessage tests', () => {
     expect(msg.validate()).toBeDefined();
 
     msg.content = 'Test';
+    expect(msg.validate()).toBeDefined();
+
+    msg.id = 'test';
     expect(msg.validate()).toBeNull();
   });
 
@@ -24,12 +27,14 @@ describe('UserMessage tests', () => {
   test('parse should get json data', () => {
     const messageType = UserMessageType.SEND;
     const rawMsg = {
+      id: 'test',
       action: messageType.toString(),
       recipient: 'Test',
       content: 'Test',
     };
     const msg = UserMessage.parse(JSON.stringify(rawMsg));
     expect(msg.action).toEqual(messageType);
+    expect(msg.id).toEqual(rawMsg['id']);
     expect(msg.recipient).toEqual(rawMsg['recipient']);
     expect(msg.content).toEqual(rawMsg['content']);
   });
