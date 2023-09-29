@@ -1,9 +1,19 @@
 name: build-docker-image
 run-name: ${{ github.actor }} is building out the Docker image 🚀
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  deployments: write
+  contents: write
+  statuses: write
+  actions: write
+  checks: write
+  packages: write
+
 jobs:
   install-test:
     name: install-test
