@@ -9,7 +9,7 @@ export interface AppServerOptions {
   serverPort: number;
   wsPath: string;
   metricsPath?: string;
-  liveMode: boolean;
+  liveMode?: boolean;
 }
 
 export class AppServer {
@@ -26,7 +26,7 @@ export class AppServer {
     if (!!this.#options.metricsPath) {
       metricsHandler = new PrometheusMetricsHandler();
     }
-    const httpHandler = new HttpHandler(this.#userHandler, metricsHandler);
+    const httpHandler = new HttpHandler(this.#userHandler, metricsHandler, this.#options.wsPath, this.#options.metricsPath);
     const wsHandler = new WsHandler(this.#userHandler, metricsHandler);
     Bun.serve<User>({
       port: this.#options.serverPort,
