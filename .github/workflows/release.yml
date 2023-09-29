@@ -1,5 +1,5 @@
-name: build-docker-image
-run-name: ${{ github.actor }} is building out the Docker image 🚀
+name: release
+run-name: ${{ github.actor }} is releasing 🚀
 on:
   workflow_dispatch:
   push:
@@ -15,17 +15,13 @@ permissions:
   packages: write
 
 jobs:
-  install-test:
-    name: install-test
+  release:
+    name: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
-      - run: bun install
-      - run: bun test
-  build-docker-image:
-    needs: install-test
-    name: build-docker-image
+  docker:
+    name: docker
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
