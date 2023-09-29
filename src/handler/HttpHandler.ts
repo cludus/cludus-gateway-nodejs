@@ -5,9 +5,9 @@ import { MetricsHandler } from './types';
 
 export class HttpHandler {
   #userHandler: UserHandler;
-  #metricsHandler: MetricsHandler;
+  #metricsHandler: MetricsHandler | null;
 
-  constructor(userHandler: UserHandler, metricsHandler: MetricsHandler) {
+  constructor(userHandler: UserHandler, metricsHandler: MetricsHandler | null) {
     this.#userHandler = userHandler;
     this.#metricsHandler = metricsHandler;
   }
@@ -26,7 +26,7 @@ export class HttpHandler {
       } catch (e) {
         return new Response(e as string | undefined, { status: 401 });
       }
-    } else if (url.pathname === appConfig.metricsPath) {
+    } else if (url.pathname === appConfig.metricsPath && !!this.#metricsHandler) {
       // metrics request
       console.debug('... Metrics requested');
       const metrics = await this.#metricsHandler.metrics();

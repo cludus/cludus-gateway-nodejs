@@ -24,5 +24,5 @@ if (appConfig.workerDelayInSeconds > 0) {
   };
 }
 
-const server = new AppServer(userHandler);
+const server = new AppServer(userHandler, appConfig);
 server.start();

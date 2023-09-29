@@ -1,4 +1,3 @@
-import appConfig from './config';
 import { HttpHandler } from "./handler/HttpHandler";
 import { PrometheusMetricsHandler } from "./handler/MetricsHandler";
 import { UserHandler } from "./handler/UserHandler";
@@ -6,19 +5,31 @@ import { WsHandler } from "./handler/WsHandler";
 import { MetricsHandler } from "./handler/types";
 import { User } from './model/types';
 
+export interface AppServerOptions {
+  serverPort: number;
+  wsPath: string;
+  metricsPath?: string;
+  liveMode: boolean;
+}
+
 export class AppServer {
   #userHandler: UserHandler;
+  #options: AppServerOptions;
 
-  constructor(userHandler: UserHandler) {
+  constructor(userHandler: UserHandler, options: AppServerOptions) {
     this.#userHandler = userHandler;
+    this.#options = options;
   }
 
   start() {
-    const metricsHandler: MetricsHandler = new PrometheusMetricsHandler();
+    let metricsHandler: MetricsHandler | null = null;
+    if (!!this.#options.metricsPath) {
+      metricsHandler = new PrometheusMetricsHandler();
+    }
     const httpHandler = new HttpHandler(this.#userHandler, metricsHandler);
     const wsHandler = new WsHandler(this.#userHandler, metricsHandler);
     Bun.serve<User>({
-      port: appConfig.serverPort,
+      port: this.#options.serverPort,
       async fetch(req, server) {
         return httpHandler.fetch(req, server);
       },
@@ -35,9 +46,11 @@ export class AppServer {
       },
     });
 
-    const devTip = !appConfig.liveMode ? '(Press CTRL+C to quit)' : '';
-    console.info('Cludus Gateway server started on port %d %s', appConfig.serverPort, devTip);
-    console.info(' - WebSocket endpoint : %s', appConfig.wsPath);
-    console.info(' - Metrics endpoint: %s', appConfig.metricsPath);
+    const devTip = !this.#options.liveMode ? '(Press CTRL+C to quit)' : '';
+    console.info('Cludus Gateway server started on port %d %s', this.#options.serverPort, devTip);
+    console.info(' - WebSocket endpoint : %s', this.#options.wsPath);
+    if (!!this.#options.metricsPath) {
+      console.info(' - Metrics endpoint: %s', this.#options.metricsPath);
+    }
   }
 }
