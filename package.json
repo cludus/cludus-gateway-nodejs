@@ -3,6 +3,10 @@
   "module": "src/index.ts",
   "type": "module",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cludus/cludus-gateway-nodejs.git"
+  },
   "devDependencies": {
     "bun-types": "latest"
   },
