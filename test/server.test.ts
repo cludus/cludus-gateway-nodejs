@@ -56,12 +56,17 @@ const createUsers = (count: number): TestUser[] => {
 const createMessages = (count: number, users: TestUser[]): TestMessage[] => {
   const messages: TestMessage[] = [];
   for (let i = 0; i < count; i++) {
-    const source = users[Math.floor(Math.random() * users.length)];
+    const userIndex = Math.floor(Math.random() * users.length);
+    const source = users[userIndex];
     const message = new TestMessage(source);
     message.id = 'message-' + i;
     message.action = UserMessageType.SEND;
     message.content = 'message-' + i;
-    const target = users[Math.floor(Math.random() * users.length)];
+    let targetIndex: number;
+    do {
+      targetIndex = Math.floor(Math.random() * users.length);
+    } while (targetIndex == userIndex);
+    const target = users[targetIndex];
     message.recipient = target.token;
     messages.push(message);
 
