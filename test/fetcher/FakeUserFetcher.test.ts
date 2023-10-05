@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { FakeUserFetcher } from '../../src/fetcher/FakeUserFetcher';
 
 describe('FakeUserFetcher tests', () => {
-  test('should return use if token is not empty', async () => {
+  test('should return user if token is not empty', async () => {
     const userFetcher = new FakeUserFetcher('-');
     const token = 'token';
     const user = await userFetcher.fetch(token);
