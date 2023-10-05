@@ -20,6 +20,8 @@
     "test:watch": "bun test --watch"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.3",
+    "jsonwebtoken": "^9.0.2",
     "prom-client": "^14.2.0",
     "winston": "^3.10.0",
     "winston-loki": "^6.0.7"

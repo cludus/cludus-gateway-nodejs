@@ -1,4 +1,5 @@
 export interface User {
+  code: string,
   token: string,
 }
 

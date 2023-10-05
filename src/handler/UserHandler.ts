@@ -1,4 +1,3 @@
-import appConfig from '../config';
 import { FakeUserFetcher } from '../fetcher/FakeUserFetcher';
 import { User, UserFetcher, UserSocket } from '../model/types';
 

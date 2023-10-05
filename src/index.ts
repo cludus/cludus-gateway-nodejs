@@ -1,11 +1,16 @@
 import appConfig from './config';
+import { JwtUserFetcher } from './fetcher/JwtUserFetcher';
 import { UserHandler } from './handler/UserHandler';
 import { configureLogging } from './logger';
+import { UserFetcher } from './model/types';
 import { AppServer } from './server';
 
 configureLogging();
 
-const userHandler = new UserHandler();
+const jwtFetcher: UserFetcher | undefined = !!appConfig.jwtSecretKey
+  ? new JwtUserFetcher(appConfig.jwtSecretKey, appConfig.jwtIssuer)
+  : undefined;
+const userHandler = new UserHandler(jwtFetcher);
 
 if (appConfig.workerDelayInSeconds > 0) {
   const checkHeartBeatsKey = 'check-heartbeats';
