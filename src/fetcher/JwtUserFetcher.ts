@@ -15,12 +15,17 @@ export class JwtUserFetcher implements UserFetcher {
 
   fetch(token: string): Promise<User> {
     return new Promise((resolve, reject) => {
+      const tokenPrefix = 'Bearer ';
+      let theToken = '';
+      if (token.startsWith(tokenPrefix)) {
+        theToken = token.substring(tokenPrefix.length);
+      }
       try {
-        const jwtPayload = jwtVerify(token, this.secretKey, {
+        const jwtPayload = jwtVerify(theToken, this.secretKey, {
           issuer: this.issuer,
           algorithms: ['HS256'],
         }) as JwtPayload;
-        resolve({ code: jwtPayload.sub!, token });
+        resolve({ code: jwtPayload.sub!, token: theToken });
       } catch (_) {
         reject(this.userNotFoundMessage);
       }

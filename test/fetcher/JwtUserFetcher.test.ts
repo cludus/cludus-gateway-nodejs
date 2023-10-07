@@ -2,13 +2,11 @@ import { sign as jwtSign } from 'jsonwebtoken';
 import { JwtUserFetcher } from '../../src/fetcher/JwtUserFetcher';
 
 describe('JwtUserFetcher tests', () => {
-  const secretKey = 'jwt_secret_key';
+  const secretKey = '404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970';
   const issuer = 'cludus';
   const jwtToken = (payload: object): string => {
     return jwtSign(payload, secretKey, {
       algorithm: 'HS256',
-      allowInsecureKeySizes: true,
-      allowInvalidAsymmetricKeyTypes: true,
       issuer,
     });
   };
@@ -20,7 +18,7 @@ describe('JwtUserFetcher tests', () => {
       exp: Math.floor(Date.now() / 1000) + (60 * 60),
       sub: userCode,
     });
-    const user = await userFetcher.fetch(token);
+    const user = await userFetcher.fetch(`Bearer ${token}`);
     expect(user).toBeDefined();
     expect(user.code).toEqual(userCode);
     expect(user.token).toEqual(token);

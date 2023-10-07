@@ -21,7 +21,7 @@ describe('server tests', () => {
 
     const userHandler = new UserHandler();
     const options: AppServerOptions = {
-      serverPort: 8080,
+      serverPort: 1237,
       wsPath: '/ws',
     };
     const server = new AppServer(userHandler, options);
