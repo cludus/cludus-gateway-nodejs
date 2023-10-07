@@ -6,7 +6,7 @@ import {
 } from 'winston';
 import LokiTransport from 'winston-loki';
 import { formatDate } from './util/date';
-import { format } from 'node:sys';
+import { format } from 'node:util';
 
 declare type LoggerTransports = transports.ConsoleTransportInstance | LokiTransport;
 
@@ -16,7 +16,7 @@ export const configureLogging = () => {
   ];
   let collectorMessage = '';
   const collector = process.env.LOGS_COLLECTOR || '';
-  if (!!collector) {
+  if (collector) {
     collectorMessage = configCollector(collector, loggerTransports);
   }
   const logger = createLogger({
@@ -32,14 +32,11 @@ export const configureLogging = () => {
     ),
     transports: loggerTransports,
   });
-  ['debug', 'info', 'warn', 'error'].forEach((level) => {
-    (console as any)[level] = (...args: any[]) => {
-      if (!!args) {
-        (logger as any)[level].apply(logger, args);
-      }
-    };
-  });
-  if (!!collectorMessage) {
+  console.debug = logger.debug.bind(logger);
+  console.info = logger.info.bind(logger);
+  console.warn = logger.warn.bind(logger);
+  console.error = logger.error.bind(logger);
+  if (collectorMessage) {
     console.debug(collectorMessage);
   }
 };

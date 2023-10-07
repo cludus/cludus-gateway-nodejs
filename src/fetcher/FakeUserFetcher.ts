@@ -9,7 +9,7 @@ export class FakeUserFetcher implements UserFetcher {
 
   fetch(token: string): Promise<User> {
     return new Promise((resolve, reject) => {
-      if (!!token) {
+      if (token) {
         resolve({ code: token, token });
       } else {
         reject(this.userNotFoundMessage);

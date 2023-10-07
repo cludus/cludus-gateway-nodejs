@@ -1,44 +1,27 @@
-import { Server } from 'bun';
-import { UserHandler } from './UserHandler';
+import { IncomingMessage, ServerResponse } from 'http';
 import { MetricsHandler } from './types';
 
 export class HttpHandler {
-  #userHandler: UserHandler;
-  #metricsHandler: MetricsHandler | null;
-  #wsPath: string;
-  #metricsPath?: string;
+  readonly metricsHandler: MetricsHandler | null;
+  readonly metricsPath?: string;
 
-  constructor(userHandler: UserHandler, metricsHandler: MetricsHandler | null, wsPath: string, metricsPath?: string) {
-    this.#userHandler = userHandler;
-    this.#metricsHandler = metricsHandler;
-    this.#wsPath = wsPath;
-    this.#metricsPath = metricsPath;
+  constructor(metricsHandler: MetricsHandler | null, metricsPath?: string) {
+    this.metricsHandler = metricsHandler;
+    this.metricsPath = metricsPath;
   }
 
-  async fetch(request: Request, server: Server) {
-    const url = new URL(request.url);
-    if (url.pathname === this.#wsPath) {
-      // websocket request
-      const userToken = request.headers.get('authorization');
-      try {
-        const user = await this.#userHandler.fetch(userToken || '');
-        const success = server.upgrade(request, { data: user });
-        return success
-          ? undefined
-          : new Response('WebSocket upgrade error', { status: 400 });
-      } catch (e) {
-        return new Response(e as string | undefined, { status: 401 });
-      }
-    } else if (url.pathname === this.#metricsPath && !!this.#metricsHandler) {
+  async handle(request: IncomingMessage, response: ServerResponse<IncomingMessage>) {
+    if (request.url === this.metricsPath && !!this.metricsHandler) {
       // metrics request
       console.debug('... Metrics requested');
-      const metrics = await this.#metricsHandler.metrics();
-      return new Response(metrics, {
-        headers: {
-          'Content-Type': this.#metricsHandler.contentType(),
-        },
-      });
+      const metrics = await this.metricsHandler.metrics();
+      response.writeHead(200);
+      response.setHeader('Content-Type', this.metricsHandler.contentType());
+      response.end(metrics);
+    } else {
+      response.writeHead(200);
+      // response.setHeader('Content-Type', 'application/json');
+      response.end('Cludus Gateway!');
     }
-    return new Response('Cludus Gateway!');
   }
 }

@@ -37,7 +37,7 @@ export class ServerMessage {
       content: this.content,
       errorMsg: this.errorMsg,
     }, (_, value) => {
-      return !!value ? value : undefined;
+      return value ? value : undefined;
     });
   }
 }

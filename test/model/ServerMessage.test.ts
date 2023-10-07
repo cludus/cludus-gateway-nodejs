@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'bun:test';
-import { ServerMessage } from '../../src/model/ServerMessage.ts';
-import { ServerMessageType } from '../../src/model/types.ts';
+import { ServerMessage } from "../../src/model/ServerMessage";
+import { ServerMessageType } from "../../src/model/types";
+
 
 describe('ServerMessage tests', () => {
   test('acknowledge should indicate action', () => {
@@ -35,10 +35,9 @@ describe('ServerMessage tests', () => {
     const content = 'content';
     const msg = ServerMessage.error(messageId, content);
     const msgJson = msg.toString();
-    expect(msgJson).toBeString();
-    expect(msgJson.indexOf(`"${messageId}"`)).toBePositive();
-    expect(msgJson.indexOf(`"${content}"`)).toBePositive();
-    expect(msgJson.indexOf(`"action"`)).toBePositive();
-    expect(msgJson.indexOf(`"sender"`)).toBeNegative();
+    expect(msgJson.indexOf(`"${messageId}"`)).toBeGreaterThan(0);
+    expect(msgJson.indexOf(`"${content}"`)).toBeGreaterThan(0);
+    expect(msgJson.indexOf(`"action"`)).toBeGreaterThan(0);
+    expect(msgJson.indexOf(`"sender"`)).toBeLessThan(0);
   });
 });

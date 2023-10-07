@@ -1,29 +1,29 @@
 # Cludus Gateway (NodeJS)
 
-Cludus Gateway implementation in node.
+Cludus Gateway implementation in [NodeJS](https://nodejs.org/).
 
 ## Stack
 
-This implementation uses [Bun](https://bun.sh), [TypeScript](https://www.typescriptlang.org/)
+This implementation uses [TypeScript](https://www.typescriptlang.org/)
 
 ## Development
 
 To install dependencies:
 
 ```bash
-bun install
+npm install
 ```
 
 To run:
 
 ```bash
-bun start:dev
+npm run start:dev
 ```
 
 To test:
 
 ```bash
-bun test
+npm test
 ```
 
 ## Deployment

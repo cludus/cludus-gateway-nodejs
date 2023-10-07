@@ -1,9 +1,10 @@
-import { HttpHandler } from "./handler/HttpHandler";
-import { PrometheusMetricsHandler } from "./handler/MetricsHandler";
-import { UserHandler } from "./handler/UserHandler";
-import { WsHandler } from "./handler/WsHandler";
-import { MetricsHandler } from "./handler/types";
-import { User } from './model/types';
+import { IncomingMessage, Server, ServerResponse, createServer as httpCreateServer } from 'http';
+import { HttpHandler } from './handler/HttpHandler';
+import { PrometheusMetricsHandler } from './handler/MetricsHandler';
+import { UserHandler } from './handler/UserHandler';
+import { WsHandler } from './handler/WsHandler';
+import { MetricsHandler } from './handler/types';
+import { WebSocket, WebSocketServer } from 'ws';
 
 export interface AppServerOptions {
   serverPort: number;
@@ -13,44 +14,58 @@ export interface AppServerOptions {
 }
 
 export class AppServer {
-  #userHandler: UserHandler;
-  #options: AppServerOptions;
+  readonly userHandler: UserHandler;
+  readonly options: AppServerOptions;
+
+  wsServer?: WebSocketServer;
+  httpServer?: Server<typeof IncomingMessage, typeof ServerResponse>;
 
   constructor(userHandler: UserHandler, options: AppServerOptions) {
-    this.#userHandler = userHandler;
-    this.#options = options;
+    this.userHandler = userHandler;
+    this.options = options;
   }
 
   start() {
     let metricsHandler: MetricsHandler | null = null;
-    if (!!this.#options.metricsPath) {
+    if (this.options.metricsPath) {
       metricsHandler = new PrometheusMetricsHandler();
     }
-    const httpHandler = new HttpHandler(this.#userHandler, metricsHandler, this.#options.wsPath, this.#options.metricsPath);
-    const wsHandler = new WsHandler(this.#userHandler, metricsHandler);
-    Bun.serve<User>({
-      port: this.#options.serverPort,
-      async fetch(req, server) {
-        return httpHandler.fetch(req, server);
-      },
-      websocket: {
-        open(ws) {
-          wsHandler.open(ws);
-        },
-        message(ws, message) {
-          wsHandler.message(ws, message);
-        },
-        close(ws) {
-          wsHandler.close(ws);
-        },
-      },
-    });
+    const wsHandler = new WsHandler(this.userHandler, metricsHandler);
 
-    const devTip = !this.#options.liveMode ? '(Press CTRL+C to quit)' : '';
-    console.info('Cludus Gateway server started on port %d %s', this.#options.serverPort, devTip);
-    console.info(' - WebSocket endpoint : %s', this.#options.wsPath);
-    if (!!this.#options.metricsPath) {
-      console.info(' - Metrics endpoint: %s', this.#options.metricsPath);
+    this.wsServer = new WebSocketServer({
+      path: this.options.wsPath,
+      noServer: true,
+    });
+    this.wsServer.on('connection', (socket: WebSocket, request: IncomingMessage) => wsHandler.handle(socket, request));
+
+    const httpHandler = new HttpHandler(metricsHandler, this.options.metricsPath);
+
+    this.httpServer = httpCreateServer(
+      (request: IncomingMessage, response: ServerResponse<IncomingMessage>) => httpHandler.handle(request, response));
+    this.httpServer.on('upgrade', (request, socket, head) => {
+      this.wsServer!.handleUpgrade(request, socket, head, socket => {
+        this.wsServer!.emit('connection', socket, request);
+      });
+    });
+    this.httpServer.listen(this.options.serverPort, () => {
+      const devTip = !this.options.liveMode ? '(Press CTRL+C to quit)' : '';
+      console.info('Cludus Gateway server started on port %d %s', this.options.serverPort, devTip);
+      console.info(' - WebSocket endpoint: %s', this.options.wsPath);
+      if (this.options.metricsPath) {
+        console.info(' - Metrics endpoint: %s', this.options.metricsPath);
+      }
+    });
+  }
+
+  stop(callback?: (err?: Error) => void) {
+    this.userHandler.closeAllConnections();
+    if (this.wsServer) {
+      this.wsServer.close(() => {
+        this.httpServer?.closeAllConnections();
+        this.httpServer?.close(callback);
+      });
+    } else if (callback) {
+      callback();
     }
   }
 }

@@ -1,4 +1,3 @@
-import { describe, expect, test } from 'bun:test';
 import { sign as jwtSign } from 'jsonwebtoken';
 import { JwtUserFetcher } from '../../src/fetcher/JwtUserFetcher';
 
@@ -10,6 +9,7 @@ describe('JwtUserFetcher tests', () => {
       algorithm: 'HS256',
       allowInsecureKeySizes: true,
       allowInvalidAsymmetricKeyTypes: true,
+      issuer,
     });
   };
 
@@ -26,13 +26,13 @@ describe('JwtUserFetcher tests', () => {
     expect(user.token).toEqual(token);
   });
 
-  // test('should throw if token is not a valid jwt', async () => {
-  //   const userFetcher = new FakeUserFetcher('-');
-  //   expect(async () => await userFetcher.fetch('')).toThrow();
-  // });
+  test('should throw if token is not a valid jwt', async () => {
+    const userFetcher = new JwtUserFetcher(secretKey, issuer);
+    expect(userFetcher.fetch('')).rejects.toMatch(userFetcher.userNotFoundMessage);
+  });
 
-  // test('should throw if token is empty', async () => {
-  //   const userFetcher = new FakeUserFetcher('-');
-  //   expect(async () => await userFetcher.fetch('')).toThrow();
-  // });
+  test('should throw if token is empty', async () => {
+    const userFetcher = new JwtUserFetcher(secretKey, issuer);
+    expect(userFetcher.fetch('')).rejects.toMatch(userFetcher.userNotFoundMessage);
+  });
 });

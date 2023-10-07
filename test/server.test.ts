@@ -1,47 +1,64 @@
-import { describe, expect, test } from 'bun:test';
 import { UserHandler } from '../src/handler/UserHandler';
 import { AppServer, AppServerOptions } from '../src/server';
 import { ServerMessageType, User, UserMessageType } from '../src/model/types';
 import { UserMessage } from '../src/model/UserMessage';
+import WebSocket from 'ws';
 
 describe('server tests', () => {
-  test('user should get messages', async () => {
+  const consoleDebug = jest.spyOn(console, 'debug').mockImplementation(() => { });
+  const consoleInfo = jest.spyOn(console, 'info').mockImplementation(() => { });
+
+  afterAll(() => {
+    consoleDebug.mockRestore();
+    consoleInfo.mockRestore();
+  });
+
+  test('user should get messages', (done) => {
     const usersLen = 10;
     const messagesLen = 100;
     const users = createUsers(usersLen);
     expect(users.length).toEqual(usersLen);
 
     const userHandler = new UserHandler();
-    const options = {
+    const options: AppServerOptions = {
       serverPort: 8080,
       wsPath: '/ws',
-    } as AppServerOptions;
+    };
     const server = new AppServer(userHandler, options);
     server.start();
 
-    for (let user of users) {
-      const socket = new WebSocket(`ws://localhost:${options.serverPort}${options.wsPath}`, {
-        headers: {
-          'authorization': user.token,
-        },
-      });
-      await user.setSocket(socket);
-      expect(user.messages.length).toEqual(0);
-    }
+    setTimeout(async () => {
+      for (let user of users) {
+        const socket = new WebSocket(`ws://localhost:${options.serverPort}${options.wsPath}`, {
+          headers: {
+            'authorization': user.token,
+          },
+        });
+        await user.setSocket(socket);
+        expect(user.messages.length).toEqual(0);
+      }
 
-    const messages = createMessages(messagesLen, users);
-    expect(messages.length).toEqual(messagesLen);
-    for (let message of messages) {
-      message.user.send(message);
-    }
+      setTimeout(() => {
+        const messages = createMessages(messagesLen, users);
+        expect(messages.length).toEqual(messagesLen);
+        for (let message of messages) {
+          message.user.send(message);
+        }
 
-    await Bun.sleep(1000);
-
-    for (let user of users) {
-      user.sortMessagesIds();
-      expect(user.acks).toEqual(user.sends);
-      expect(user.messages).toEqual(user.receives);
-    }
+        setTimeout(() => {
+          try {
+            for (let user of users) {
+              user.sortMessagesIds();
+              expect(user.acks).toEqual(user.sends);
+              expect(user.messages).toEqual(user.receives);
+            }
+            server.stop(done);
+          } catch (e) {
+            done(e);
+          }
+        }, 200);
+      }, 200);
+    }, 200);
   });
 });
 
@@ -77,6 +94,7 @@ const createMessages = (count: number, users: TestUser[]): TestMessage[] => {
 };
 
 class TestUser implements User {
+  readonly code: string;
   readonly token: string;
   // list of messages id received with ack action
   acks: string[];
@@ -89,6 +107,7 @@ class TestUser implements User {
   socket?: WebSocket;
 
   constructor(token: string) {
+    this.code = token;
     this.token = token;
     this.acks = [];
     this.messages = [];

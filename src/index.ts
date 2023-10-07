@@ -1,3 +1,4 @@
+import { Worker } from 'worker_threads';
 import appConfig from './config';
 import { JwtUserFetcher } from './fetcher/JwtUserFetcher';
 import { UserHandler } from './handler/UserHandler';
@@ -7,7 +8,7 @@ import { AppServer } from './server';
 
 configureLogging();
 
-const jwtFetcher: UserFetcher | undefined = !!appConfig.jwtSecretKey
+const jwtFetcher: UserFetcher | undefined = appConfig.jwtSecretKey
   ? new JwtUserFetcher(appConfig.jwtSecretKey, appConfig.jwtIssuer)
   : undefined;
 const userHandler = new UserHandler(jwtFetcher);
@@ -15,18 +16,21 @@ const userHandler = new UserHandler(jwtFetcher);
 if (appConfig.workerDelayInSeconds > 0) {
   const checkHeartBeatsKey = 'check-heartbeats';
 
-  const workerURL = new URL('./worker.ts', import.meta.url).href;
-  const worker = new Worker(workerURL, {
-    env: {
-      [checkHeartBeatsKey]: String(appConfig.workerDelayInSeconds),
+  let workerFile = './src/worker.ts';
+  // @ts-ignore
+  if (!process[Symbol.for('ts-node.register.instance')]) {
+    workerFile = './worker.js';
+  }
+  const worker = new Worker(workerFile, {
+    workerData: {
+      [checkHeartBeatsKey]: appConfig.workerDelayInSeconds,
     }
   });
-
-  worker.onmessage = (event: MessageEvent<string>) => {
-    if (event.data == checkHeartBeatsKey) {
+  worker.on('message', (key) => {
+    if (key == checkHeartBeatsKey) {
       userHandler.checkHeartbeats(appConfig.maxUserHeartbeatDelayInSeconds);
     }
-  };
+  });
 }
 
 const server = new AppServer(userHandler, appConfig);

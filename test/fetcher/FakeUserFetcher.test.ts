@@ -1,4 +1,3 @@
-import { describe, expect, test } from 'bun:test';
 import { FakeUserFetcher } from '../../src/fetcher/FakeUserFetcher';
 
 describe('FakeUserFetcher tests', () => {
@@ -12,6 +11,6 @@ describe('FakeUserFetcher tests', () => {
 
   test('should throw if token is empty', async () => {
     const userFetcher = new FakeUserFetcher('-');
-    expect(async () => await userFetcher.fetch('')).toThrow();
+    await expect(userFetcher.fetch('')).rejects.toMatch(userFetcher.userNotFoundMessage);
   });
 });

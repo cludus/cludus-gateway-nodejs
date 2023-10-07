@@ -1,10 +1,10 @@
-declare var self: Worker;
+const { parentPort, workerData } = require('worker_threads'); // eslint-disable-line @typescript-eslint/no-var-requires
 
-for (let key of Object.keys(process.env)) {
-  const value = Number.parseInt(process.env[key]!) || 0;
+for (const key of Object.keys(workerData)) {
+  const value = Number(workerData[key]) || 0;
   if (value > 0) {
     setInterval(() => {
-      self.postMessage(key);
+      parentPort?.postMessage(key);
     }, value * 1000);
   }
 }

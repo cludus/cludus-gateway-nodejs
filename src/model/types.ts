@@ -8,10 +8,8 @@ export interface UserFetcher {
 }
 
 export interface UserSocket {
-  readonly remoteAddress: string;
-
+  readonly url: string;
   send(data: string): void;
-
   close(): void;
 }
 
