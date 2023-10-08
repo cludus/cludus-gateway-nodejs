@@ -6,9 +6,9 @@
   "scripts": {
     "lint": "npx eslint .",
     "build": "rimraf ./build && tsc --project tsconfig.build.json",
-    "start:build": "npm run build && cd build && node index.js",
     "start:dev": "npx nodemon",
-    "test": "jest"
+    "test": "jest",
+    "build:docker": "tsc --project tsconfig.build.json && rimraf ./src"
   },
   "repository": {
     "type": "git",

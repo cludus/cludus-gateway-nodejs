@@ -19,7 +19,7 @@ if (appConfig.workerDelayInSeconds > 0) {
   let workerFile = './src/worker.ts';
   // @ts-ignore
   if (!process[Symbol.for('ts-node.register.instance')]) {
-    workerFile = './worker.js';
+    workerFile = './build/worker.js';
   }
   const worker = new Worker(workerFile, {
     workerData: {
