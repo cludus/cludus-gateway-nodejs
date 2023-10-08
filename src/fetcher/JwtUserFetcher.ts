@@ -1,31 +1,33 @@
+import { decodeJwt, jwtVerify } from 'jose';
 import { User, UserFetcher } from '../model/types';
-import { JwtPayload, verify as jwtVerify } from 'jsonwebtoken';
+import { dateInSecondsSinceEpochIsAfterToday } from '../util/date';
 
 export class JwtUserFetcher implements UserFetcher {
-  readonly secretKey: string;
+  readonly secretKey: Uint8Array;
   readonly issuer: string;
   readonly userNotFoundMessage: string;
 
   constructor(secretKey: string, issuer: string)
   constructor(secretKey: string, issuer: string, userNotFoundMessage?: string) {
-    this.secretKey = secretKey;
+    this.secretKey = new TextEncoder().encode(secretKey);
     this.issuer = issuer;
     this.userNotFoundMessage = userNotFoundMessage || 'User not found!';
   }
 
   fetch(token: string): Promise<User> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const tokenPrefix = 'Bearer ';
       let theToken = '';
       if (token.startsWith(tokenPrefix)) {
         theToken = token.substring(tokenPrefix.length);
       }
       try {
-        const jwtPayload = jwtVerify(theToken, this.secretKey, {
-          issuer: this.issuer,
-          algorithms: ['HS256'],
-        }) as JwtPayload;
-        resolve({ code: jwtPayload.sub!, token: theToken });
+        const claims = decodeJwt(token);
+        if (claims.sub && claims.iss == this.issuer && dateInSecondsSinceEpochIsAfterToday(claims.exp)) {
+          resolve({ code: claims.sub!, token: theToken });
+        } else {
+          reject(this.userNotFoundMessage);
+        }
       } catch (_) {
         reject(this.userNotFoundMessage);
       }

@@ -1,4 +1,4 @@
-import { formatDate } from '../../src/util/date';
+import { dateInSecondsSinceEpochIsAfterToday, formatDate } from '../../src/util/date';
 
 describe('date utils tests', () => {
   test('.format() should return date as string', () => {
@@ -10,5 +10,13 @@ describe('date utils tests', () => {
       const valueStr = value.toString().padStart(2, '0');
       expect(formatDate(date)).toEqual(`${year}-${monthStr}-${valueStr} ${valueStr}:${valueStr}:${valueStr}`);
     }
+  });
+
+  test('.dateInSecondsSinceEpochIsAfterToday() should validate', () => {
+    const now = new Date();
+    // expired
+    expect(dateInSecondsSinceEpochIsAfterToday((now.getTime() - 100) / 1000)).toBeFalsy();
+    // not expired
+    expect(dateInSecondsSinceEpochIsAfterToday((now.getTime() + 100) / 1000)).toBeTruthy();
   });
 });

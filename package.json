@@ -40,9 +40,9 @@
   },
   "dependencies": {
     "dotenv": "^16.3.1",
-    "jsonwebtoken": "^9.0.2",
+    "jose": "^4.15.2",
     "prom-client": "^14.2.0",
-    "winston": "^3.10.0",
+    "winston": "^3.11.0",
     "winston-loki": "^6.0.7",
     "ws": "^8.14.2"
   },

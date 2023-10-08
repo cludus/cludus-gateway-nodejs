@@ -15,7 +15,8 @@
   ],
   "ignorePatterns": [
     "test/**/*",
-    "build/**/*"
+    "build/**/*",
+    "coverage/**/*"
   ],
   "rules": {
     "@typescript-eslint/ban-ts-comment": "off"

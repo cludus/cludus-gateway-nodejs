@@ -1,5 +1,5 @@
-import { ServerMessage } from "../../src/model/ServerMessage";
-import { ServerMessageType } from "../../src/model/types";
+import { ServerMessage } from '../../src/model/ServerMessage';
+import { ServerMessageType } from '../../src/model/types';
 
 
 describe('ServerMessage tests', () => {
