@@ -2,6 +2,8 @@
 
 Cludus Gateway implementation in [NodeJS](https://nodejs.org/).
 
+![build](https://github.com/cludus/cludus-gateway-nodejs/actions/workflows/build.yml/badge.svg)
+
 ## Stack
 
 This implementation uses [TypeScript](https://www.typescriptlang.org/)
