@@ -1,4 +1,4 @@
-import { decodeJwt, jwtVerify } from 'jose';
+import { decodeJwt } from 'jose';
 import { User, UserFetcher } from '../model/types';
 import { dateInSecondsSinceEpochIsAfterToday } from '../util/date';
 
@@ -14,23 +14,20 @@ export class JwtUserFetcher implements UserFetcher {
     this.userNotFoundMessage = userNotFoundMessage || 'User not found!';
   }
 
-  fetch(token: string): Promise<User> {
-    return new Promise(async (resolve, reject) => {
-      const tokenPrefix = 'Bearer ';
-      let theToken = '';
-      if (token.startsWith(tokenPrefix)) {
-        theToken = token.substring(tokenPrefix.length);
+  async fetch(token: string): Promise<User> {
+    const tokenPrefix = 'Bearer ';
+    let theToken = '';
+    if (token.startsWith(tokenPrefix)) {
+      theToken = token.substring(tokenPrefix.length);
+    }
+    try {
+      const claims = decodeJwt(token);
+      if (claims.sub && claims.iss == this.issuer && dateInSecondsSinceEpochIsAfterToday(claims.exp)) {
+        return { code: claims.sub!, token: theToken };
       }
-      try {
-        const claims = decodeJwt(token);
-        if (claims.sub && claims.iss == this.issuer && dateInSecondsSinceEpochIsAfterToday(claims.exp)) {
-          resolve({ code: claims.sub!, token: theToken });
-        } else {
-          reject(this.userNotFoundMessage);
-        }
-      } catch (_) {
-        reject(this.userNotFoundMessage);
-      }
-    });
+      throw this.userNotFoundMessage;
+    } catch (_) {
+      throw this.userNotFoundMessage;
+    }
   }
 }
