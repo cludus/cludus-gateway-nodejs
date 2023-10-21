@@ -1,9 +1,12 @@
 import { FakeUserFetcher } from '../fetcher/FakeUserFetcher';
 import { User, UserFetcher, UserSocket } from '../model/types';
+import { ConsulDiscoveryHandler } from './DiscoveryHandler';
+import { DiscoveryHandler } from './types';
 
 export class UserHandler implements UserFetcher {
   readonly userNotFoundMessage: string;
   readonly userFetcher: UserFetcher;
+  readonly discoveryHandler: DiscoveryHandler;
   readonly users = new Map<string, User>();
   readonly sockets = new Map<string, UserSocket>();
   readonly heartbeats = new Map<string, Date>();
@@ -12,6 +15,8 @@ export class UserHandler implements UserFetcher {
   constructor(userFetcher?: UserFetcher, userNotFoundMessage?: string) {
     this.userNotFoundMessage = userNotFoundMessage || 'User not found!';
     this.userFetcher = userFetcher || new FakeUserFetcher(this.userNotFoundMessage);
+    this.discoveryHandler = new ConsulDiscoveryHandler();
+    this.discoveryHandler.init();
   }
 
   fetch(token: string): Promise<User> {
@@ -20,6 +25,7 @@ export class UserHandler implements UserFetcher {
 
   get(token: string): UserSocket | undefined {
     return this.sockets.get(token);
+    // if not found return usersocket with discoveryHandler
   }
 
   set(user: User, socket: UserSocket) {

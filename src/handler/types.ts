@@ -1,11 +1,15 @@
 export interface MetricsHandler {
-    metrics(): Promise<string>;
+  metrics(): Promise<string>;
 
-    contentType(): string;
+  contentType(): string;
 
-    setConnectionsCount(count: number): void;
+  setConnectionsCount(count: number): void;
 
-    incrementMessagesCount(): void;
+  incrementMessagesCount(): void;
 
-    startTimer(): () => number;
+  startTimer(): () => number;
+}
+
+export interface DiscoveryHandler {
+  init(): Promise<void>;
 }

@@ -1,8 +1,5 @@
 version: "3"
 
-networks:
-  cludus:
-
 services:
   gateway-1:
     image: ghcr.io/cludus/gateway-nodejs:latest
@@ -19,8 +16,6 @@ services:
       - "8080:8080"
     profiles:
       - test
-    networks:
-      - cludus
 
   prometheus:
     image: prom/prometheus:latest
@@ -32,29 +27,23 @@ services:
       - gateway-1
     profiles:
       - test
-    networks:
-      - cludus
 
   prometheus-dev:
     image: prom/prometheus:latest
     extra_hosts:
-      - "gateway-dev:127.0.0.1"
+      - "host.docker.internal:host-gateway"
     ports:
       - "9090:9090"
     volumes:
       - ./prometheus-dev.yml:/etc/prometheus/prometheus.yml
     profiles:
       - dev
-    networks:
-      - cludus
 
   loki:
     image: grafana/loki:main
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - cludus
 
   grafana:
     image: grafana/grafana:latest
@@ -83,5 +72,16 @@ services:
           editable: false
         EOF
         /run.sh
-    networks:
-      - cludus
+
+  consul:
+    image: hashicorp/consul:latest
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8500:8500"
+      - "8600:8600/tcp"
+      - "8600:8600/udp"
+    restart: always
+    command: "agent"
+    volumes:
+     - ./consul-server.json:/consul/config/server.json:ro

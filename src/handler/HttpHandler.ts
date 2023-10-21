@@ -15,12 +15,14 @@ export class HttpHandler {
       // metrics request
       console.debug('... Metrics requested');
       const metrics = await this.metricsHandler.metrics();
-      response.writeHead(200);
       response.setHeader('Content-Type', this.metricsHandler.contentType());
+      response.writeHead(200);
       response.end(metrics);
+    } else if (request.url === '/health') {
+      response.writeHead(200);
+      response.end('Cludus Gateway is UP!');
     } else {
       response.writeHead(200);
-      // response.setHeader('Content-Type', 'application/json');
       response.end('Cludus Gateway!');
     }
   }

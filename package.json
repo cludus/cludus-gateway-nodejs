@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/cludus/cludus-gateway-nodejs#readme",
   "devDependencies": {
+    "@types/consul": "^0.40.2",
     "@types/jest": "^29.5.5",
     "@types/jsonwebtoken": "^9.0.3",
     "@types/node": "^20.8.2",
@@ -39,6 +40,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "consul": "^1.2.0",
     "dotenv": "^16.3.1",
     "jose": "^4.15.2",
     "prom-client": "^14.2.0",
