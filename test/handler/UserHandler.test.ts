@@ -16,7 +16,7 @@ describe('UserHandler tests', () => {
 
   test('should use fetcher to fetch user', () => {
     const fetcher = mock((token: string): Promise<User> => {
-      return new Promise((resolve) => {
+      return new Promise<User>((resolve) => {
         resolve({ code: token, token });
       })
     });

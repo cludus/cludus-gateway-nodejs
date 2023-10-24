@@ -8,7 +8,7 @@ export class FakeUserFetcher implements UserFetcher {
   }
 
   fetch(token: string): Promise<User> {
-    return new Promise((resolve, reject) => {
+    return new Promise<User>((resolve, reject) => {
       if (token) {
         resolve({ code: token, token });
       } else {
