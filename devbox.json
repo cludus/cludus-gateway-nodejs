@@ -1,6 +1,6 @@
 {
   "packages": [
-    "nodejs@21.0.0"
+    "nodejs@20.0.0"
   ],
   "shell": {
     "init_hook": [
