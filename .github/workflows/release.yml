@@ -1,4 +1,4 @@
-name: release
+name: Release New Version
 run-name: ${{ github.actor }} is releasing 🚀
 on:
   workflow_dispatch:
@@ -7,12 +7,39 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 permissions:
-  contents: read
+  deployments: write
+  contents: write
+  statuses: write
+  actions: write
+  checks: write
   packages: write
 
 jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '>=20.0.0'
+    - name: Build
+      run: |
+        npm ci
+        CI=true npm run build
+    - name: Github Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        body: |
+          Version ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+
   docker:
-    name: docker
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

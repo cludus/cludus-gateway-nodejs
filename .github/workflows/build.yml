@@ -1,4 +1,4 @@
-name: build
+name: Build Current Version
 run-name: ${{ github.actor }} is building 🚀
 on:
   workflow_dispatch:
@@ -8,13 +8,15 @@ on:
 
 jobs:
   build:
-    name: install-lint-test
+    name: Lint & Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: '>=20.0.0'
-      - run: npm ci
-      - run: CI=true npm run lint
-      - run: CI=true npm test
+      - name: Lint and test the project
+        run: |
+          npm ci
+          CI=true npm run build
+          CI=true npm run test
