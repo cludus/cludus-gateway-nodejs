@@ -17,8 +17,9 @@ export class ConsulDiscoveryHandler implements DiscoveryHandler {
   async init(): Promise<void> {
     if (this.client && URL.canParse(appConfig.serverHost)) {
       const serverHostUrl = new URL(appConfig.serverHost);
+      console.debug('Connecting discovery with Consul at: %s', serverHostUrl);
       try {
-        const register = await this.client.agent.service.register({
+        const register = await this.client.agent.service.register<any>({
           name: appConfig.discoveryName,
           address: serverHostUrl.hostname,
           port: appConfig.serverPort,
@@ -28,9 +29,13 @@ export class ConsulDiscoveryHandler implements DiscoveryHandler {
             status: 'passing',
           },
         });
-        console.info(' - Service registered with Consul: %s', register);
+        if (register && register.errno == 0) {
+          console.info(' - Service registered with Consul: %s', register);
+        } else {
+          console.error('Error connecting discovery at %s, %s', serverHostUrl, register.code ?? register.errno ?? 'Unknown');
+        }
       } catch (e) {
-        console.error('  Error connecting discovery: %s', e);
+        console.error('Error connecting discovery at %s, %s', serverHostUrl, e);
       }
     }
     // const services = await this.client.agent.service.list();

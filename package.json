@@ -5,10 +5,13 @@
   "main": "src/index.ts",
   "scripts": {
     "lint": "npx eslint .",
-    "build": "rimraf ./build && tsc --project tsconfig.build.json",
+    "prebuild": "rimraf ./build",
+    "build": "tsc --project tsconfig.build.json",
     "start:dev": "npx nodemon",
     "test": "jest",
-    "build:docker": "tsc --project tsconfig.build.json && rimraf ./src"
+    "prebuild:docker": "rimraf ./build",
+    "build:docker": "tsc --project tsconfig.build.json",
+    "postbuild:docker": "rimraf ./src"
   },
   "repository": {
     "type": "git",
