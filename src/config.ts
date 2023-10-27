@@ -20,7 +20,7 @@ export interface AppConfig {
 
 const isLive = process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'live';
 
-let env: NodeJS.Dict<string> = process.env;
+const env: NodeJS.Dict<string> = process.env;
 if (process.env.NODE_ENV === 'test') {
   env.HOST = '';
   env.METRICS_PATH = '';
