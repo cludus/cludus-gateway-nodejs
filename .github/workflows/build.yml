@@ -18,7 +18,9 @@ jobs:
       - name: Lint and test the project
         run: |
           npm ci
-          CI=true npm run build
-          CI=true npm run test
+          npm run build
+          npm run test
         env:
+          CI: true
+          NPM_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
