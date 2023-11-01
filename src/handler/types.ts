@@ -11,5 +11,9 @@ export interface MetricsHandler {
 }
 
 export interface DiscoveryHandler {
-  init(): Promise<void>;
+  init(): Promise<RemoteHandler>;
+}
+
+export interface RemoteHandler {
+  sendRemote(token: string, data: string): void;
 }

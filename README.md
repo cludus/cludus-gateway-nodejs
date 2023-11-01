@@ -10,19 +10,24 @@ This implementation uses [TypeScript](https://www.typescriptlang.org/)
 
 ## Development
 
-To install dependencies:
+### To install dependencies:
+
+Login into github NPM registry with your github username and personal access token:
+```bash
+npm login --scope=@cludus --registry=https://npm.pkg.github.com
+```
 
 ```bash
 npm install
 ```
 
-To run:
+### To run:
 
 ```bash
 npm run start:dev
 ```
 
-To test:
+### To test:
 
 ```bash
 npm test

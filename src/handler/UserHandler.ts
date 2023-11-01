@@ -1,22 +1,23 @@
 import { FakeUserFetcher } from '../fetcher/FakeUserFetcher';
+import { RemoteSocket } from '../model/RemoteSocket';
 import { User, UserFetcher, UserSocket } from '../model/types';
-import { ConsulDiscoveryHandler } from './DiscoveryHandler';
-import { DiscoveryHandler } from './types';
+import { RemoteHandler } from './types';
 
 export class UserHandler implements UserFetcher {
   readonly userNotFoundMessage: string;
+
   readonly userFetcher: UserFetcher;
-  readonly discoveryHandler: DiscoveryHandler;
+  readonly remoteHandler: RemoteHandler;
+
   readonly users = new Map<string, User>();
   readonly sockets = new Map<string, UserSocket>();
   readonly heartbeats = new Map<string, Date>();
 
-  constructor(userFetcher?: UserFetcher)
-  constructor(userFetcher?: UserFetcher, userNotFoundMessage?: string) {
+  constructor(remoteHandler: RemoteHandler, userFetcher?: UserFetcher)
+  constructor(remoteHandler: RemoteHandler, userFetcher?: UserFetcher, userNotFoundMessage?: string) {
     this.userNotFoundMessage = userNotFoundMessage || 'User not found!';
     this.userFetcher = userFetcher || new FakeUserFetcher(this.userNotFoundMessage);
-    this.discoveryHandler = new ConsulDiscoveryHandler();
-    this.discoveryHandler.init();
+    this.remoteHandler = remoteHandler;
   }
 
   fetch(token: string): Promise<User> {
@@ -24,8 +25,10 @@ export class UserHandler implements UserFetcher {
   }
 
   get(token: string): UserSocket | undefined {
-    return this.sockets.get(token);
-    // if not found return usersocket with discoveryHandler
+    if (this.sockets.has(token)) {
+      return this.sockets.get(token);
+    }
+    return new RemoteSocket(token, this.remoteHandler);
   }
 
   set(user: User, socket: UserSocket) {

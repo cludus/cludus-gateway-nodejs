@@ -1,6 +1,7 @@
 import Consul from 'consul';
-import { DiscoveryHandler } from './types';
+import { DiscoveryHandler, RemoteHandler } from './types';
 import appConfig from '../config';
+import { FakeRemoteHandler } from './RemoteHandler';
 
 type ConsulRegister = {
   errno?: number | undefined;
@@ -19,7 +20,7 @@ export class ConsulDiscoveryHandler implements DiscoveryHandler {
     }
   }
 
-  async init(): Promise<void> {
+  async init(): Promise<RemoteHandler> {
     if (this.client && URL.canParse(appConfig.serverHost)) {
       const serverHostUrl = new URL(appConfig.serverHost);
       console.debug('Connecting discovery with Consul at: %s', serverHostUrl);
@@ -38,11 +39,13 @@ export class ConsulDiscoveryHandler implements DiscoveryHandler {
           console.error('Error connecting discovery at %s, %s', serverHostUrl, register.code ?? register.errno ?? 'Unknown');
         } else {
           console.info(' - Service registered with Consul: %s', register);
+          return new GrpcRemoteHandler(this);
         }
       } catch (e) {
         console.error('Error connecting discovery at %s, %s', serverHostUrl, e);
       }
     }
+    return new FakeRemoteHandler();
     // const services = await this.client.agent.service.list();
     // console.log(`=================================== Found services ${services}`);
   }
