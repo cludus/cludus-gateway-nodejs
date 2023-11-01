@@ -20,3 +20,5 @@ jobs:
           npm ci
           CI=true npm run build
           CI=true npm run test
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
