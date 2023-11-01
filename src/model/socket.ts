@@ -23,7 +23,7 @@ export class LocalSocket implements UserSocket {
   }
 
   close(): void {
-    this.socket.close;
+    this.socket.close();
   }
 }
 

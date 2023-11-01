@@ -1,5 +1,6 @@
 import { UserHandler } from '../../src/handler/UserHandler';
 import { User, UserSocket } from '../../src/model/types';
+import { RemoteSocket } from '../../src/model/socket';
 
 const setSystemTime = jest.setSystemTime;
 const mock = jest.fn;
@@ -28,7 +29,7 @@ describe('UserHandler tests', () => {
   test('should register sessions', () => {
     const userHandler = new UserHandler();
     const token = 'test-token';
-    expect(userHandler.get(token)).toBeUndefined();
+    expect(userHandler.get(token)).toBeInstanceOf(RemoteSocket);
 
     const user: User = { code: token, token };
     const socket: UserSocket = new TestSocket(token);
@@ -37,7 +38,7 @@ describe('UserHandler tests', () => {
     expect(userHandler.get(token)!.url).toEqual(token);
 
     userHandler.delete(user);
-    expect(userHandler.get(token)).toBeUndefined();
+    expect(userHandler.get(token)).toBeInstanceOf(RemoteSocket);
   });
 
   test('should count sessions', () => {
