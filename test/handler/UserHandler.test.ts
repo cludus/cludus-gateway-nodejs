@@ -75,7 +75,9 @@ class TestSocket implements UserSocket {
     this.closeFn = closeFn;
   }
 
-  send(_: string) { }
+  send(_: string): Promise<void> {
+    return Promise.resolve();
+  }
 
   close() {
     if (this.closeFn != null) {

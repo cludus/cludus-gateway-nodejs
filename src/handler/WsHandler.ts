@@ -5,6 +5,7 @@ import { UserMessage } from '../model/UserMessage';
 import { ServerMessage } from '../model/ServerMessage';
 import WebSocket from 'ws';
 import { IncomingMessage } from 'http';
+import { LocalSocket } from '../model/socket';
 
 export class WsHandler {
   readonly userHandler: UserHandler;
@@ -19,7 +20,8 @@ export class WsHandler {
     const userToken = request.headers.authorization;
     try {
       const user = await this.userHandler.fetch(userToken || '');
-      this.userHandler.set(user, socket);
+      const localSocket = new LocalSocket(socket.url, socket);
+      this.userHandler.set(user, localSocket);
       console.debug('====> User %s connected. Active connections: %d', user.code, this.userHandler.count());
       if (this.metricsHandler) {
         this.metricsHandler.setConnectionsCount(this.userHandler.count());

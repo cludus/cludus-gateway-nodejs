@@ -15,5 +15,5 @@ export interface DiscoveryHandler {
 }
 
 export interface RemoteHandler {
-  sendRemote(token: string, data: string): void;
+  sendRemote(token: string, data: string): Promise<void>;
 }

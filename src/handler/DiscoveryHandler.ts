@@ -1,7 +1,7 @@
 import Consul from 'consul';
 import { DiscoveryHandler, RemoteHandler } from './types';
 import appConfig from '../config';
-import { FakeRemoteHandler } from './RemoteHandler';
+import { FakeRemoteHandler, GrpcRemoteHandler } from './RemoteHandler';
 
 type ConsulRegister = {
   errno?: number | undefined;

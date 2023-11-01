@@ -9,7 +9,7 @@ export interface UserFetcher {
 
 export interface UserSocket {
   readonly url: string;
-  send(data: string): void;
+  send(data: string): Promise<void>;
   close(): void;
 }
 

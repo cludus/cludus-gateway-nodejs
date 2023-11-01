@@ -15,7 +15,7 @@ discoveryHandler.init().then((remoteHandler) => {
     ? new JwtUserFetcher(appConfig.jwtSecretKey, appConfig.jwtIssuer)
     : undefined;
 
-  const userHandler = new UserHandler(remoteHandler, jwtFetcher);
+  const userHandler = new UserHandler(jwtFetcher, remoteHandler);
 
   if (appConfig.workerDelayInSeconds > 0) {
     const checkHeartBeatsKey = 'check-heartbeats';

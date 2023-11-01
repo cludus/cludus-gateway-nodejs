@@ -1,6 +1,7 @@
 import { FakeUserFetcher } from '../fetcher/FakeUserFetcher';
-import { RemoteSocket } from '../model/RemoteSocket';
+import { RemoteSocket } from '../model/socket';
 import { User, UserFetcher, UserSocket } from '../model/types';
+import { FakeRemoteHandler } from './RemoteHandler';
 import { RemoteHandler } from './types';
 
 export class UserHandler implements UserFetcher {
@@ -13,11 +14,11 @@ export class UserHandler implements UserFetcher {
   readonly sockets = new Map<string, UserSocket>();
   readonly heartbeats = new Map<string, Date>();
 
-  constructor(remoteHandler: RemoteHandler, userFetcher?: UserFetcher)
-  constructor(remoteHandler: RemoteHandler, userFetcher?: UserFetcher, userNotFoundMessage?: string) {
+  constructor(userFetcher?: UserFetcher, remoteHandler?: RemoteHandler)
+  constructor(userFetcher?: UserFetcher, remoteHandler?: RemoteHandler, userNotFoundMessage?: string) {
     this.userNotFoundMessage = userNotFoundMessage || 'User not found!';
     this.userFetcher = userFetcher || new FakeUserFetcher(this.userNotFoundMessage);
-    this.remoteHandler = remoteHandler;
+    this.remoteHandler = remoteHandler ?? new FakeRemoteHandler();
   }
 
   fetch(token: string): Promise<User> {
