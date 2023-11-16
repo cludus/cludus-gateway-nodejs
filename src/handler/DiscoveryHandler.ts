@@ -12,7 +12,7 @@ export class ConsulDiscoveryHandler implements DiscoveryHandler {
   readonly client?: Consul.Consul;
 
   constructor() {
-    if (appConfig.discoveryHost) {
+    if (appConfig.discoveryHost && URL.canParse(appConfig.serverHost)) {
       this.client = new Consul({
         host: appConfig.discoveryHost,
         port: String(appConfig.discoveryPort),
@@ -21,7 +21,7 @@ export class ConsulDiscoveryHandler implements DiscoveryHandler {
   }
 
   async init(): Promise<RemoteHandler> {
-    if (this.client && URL.canParse(appConfig.serverHost)) {
+    if (this.client) {
       const serverHostUrl = new URL(appConfig.serverHost);
       console.debug('Connecting discovery with Consul at: %s', serverHostUrl);
       try {
